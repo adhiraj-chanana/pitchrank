@@ -15,17 +15,23 @@ export type DailyScenario = {
   scenario_id: string;
 };
 
+export type PitchDimensions = {
+  hook: number;
+  clarity: number;
+  confidence: number;
+  close: number;
+};
+
 export type PitchScore = {
   overall: number;
-  placeholder?: boolean;
-  filler_words?: number;
-  wpm?: number;
-  // Week 3: real AI-generated sub-scores and feedback.
-  hook?: number;
-  clarity?: number;
-  confidence?: number;
-  close?: number;
-  feedback?: string[];
+  dimensions: PitchDimensions;
+  filler_penalty: number;
+  pace_score: number;
+  feedback: string[];
+  hedging_phrases: string[];
+  strong_moments: string[];
+  filler_words: number;
+  wpm: number;
 };
 
 export type FillerWordsResult = {

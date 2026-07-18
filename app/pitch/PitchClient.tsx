@@ -56,6 +56,7 @@ export function PitchClient({ scenario }: { scenario: Scenario }) {
   const chunksRef = useRef<Blob[]>([]);
   const audioBlobRef = useRef<Blob | null>(null);
   const uploadPathRef = useRef<string>("");
+  const transcriptIdRef = useRef<string>("");
 
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
@@ -267,6 +268,7 @@ export function PitchClient({ scenario }: { scenario: Scenario }) {
         throw new Error(body.error ?? "Failed to start transcription.");
       }
       const { transcript_id } = await startRes.json();
+      transcriptIdRef.current = transcript_id;
 
       const result = await pollTranscription(transcript_id);
 
@@ -301,8 +303,10 @@ export function PitchClient({ scenario }: { scenario: Scenario }) {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
+          transcriptId: transcriptIdRef.current,
           transcript,
           fillerCount: fillerWords?.count ?? 0,
+          fillerWords: fillerWords?.instances ?? [],
           wpm: wpm ?? 0,
           scenarioId: scenario.id,
         }),

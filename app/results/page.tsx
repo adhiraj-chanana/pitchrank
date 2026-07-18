@@ -3,7 +3,14 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { todayDateString } from "@/lib/date";
 import { HighlightedTranscript } from "@/components/HighlightedTranscript";
+import { ScoreBar } from "@/components/ScoreBar";
 import type { PitchScore } from "@/lib/types";
+
+function overallScoreColor(overall: number): string {
+  if (overall < 50) return "text-red-400";
+  if (overall < 75) return "text-amber-400";
+  return "text-green-400";
+}
 
 export default async function ResultsPage({
   searchParams,
@@ -47,34 +54,82 @@ export default async function ResultsPage({
     <div className="min-h-screen px-6 py-12">
       <div className="max-w-xl mx-auto">
         <p className="text-center text-muted text-sm mb-2">
-          {(attempt as unknown as { scenarios: { title: string } | null})
+          {(attempt as unknown as { scenarios: { title: string } | null })
             .scenarios?.title ?? "Today's pitch"}
         </p>
         <div className="text-center mb-10">
-          <div className="text-7xl font-bold text-white leading-none">
+          <div
+            className={`text-7xl font-bold leading-none ${overallScoreColor(
+              score.overall
+            )}`}
+          >
             {score.overall}
           </div>
           <div className="text-muted mt-2">Overall score</div>
-          {score.placeholder && (
-            <div className="text-xs text-muted mt-3">
-              Full AI scoring (hook, clarity, confidence, close) arrives in
-              week 3.
-            </div>
-          )}
+        </div>
+
+        <div className="bg-surface border border-border rounded-2xl p-6 mb-6 flex flex-col gap-5">
+          <ScoreBar label="Hook" value={score.dimensions.hook} />
+          <ScoreBar label="Clarity" value={score.dimensions.clarity} />
+          <ScoreBar label="Confidence" value={score.dimensions.confidence} />
+          <ScoreBar label="Close" value={score.dimensions.close} />
+          <ScoreBar label="Filler" value={score.filler_penalty} />
+          <ScoreBar label="Pace" value={score.pace_score} />
         </div>
 
         <div className="grid grid-cols-2 gap-4 mb-6">
           <div className="bg-surface border border-border rounded-2xl p-5 text-center">
             <div className="text-2xl font-bold text-white">
-              {score.filler_words ?? 0}
+              {score.filler_words}
             </div>
             <div className="text-xs text-muted mt-1">Filler words</div>
           </div>
           <div className="bg-surface border border-border rounded-2xl p-5 text-center">
-            <div className="text-2xl font-bold text-white">{score.wpm ?? 0}</div>
+            <div className="text-2xl font-bold text-white">{score.wpm}</div>
             <div className="text-xs text-muted mt-1">Words per minute</div>
           </div>
         </div>
+
+        <div className="bg-surface border border-border rounded-2xl p-6 mb-6">
+          <h2 className="text-sm font-semibold text-white mb-3">Feedback</h2>
+          <ul className="flex flex-col gap-2">
+            {score.feedback.map((point, i) => (
+              <li key={i} className="text-sm text-muted flex gap-2">
+                <span className="text-accent">•</span>
+                {point}
+              </li>
+            ))}
+          </ul>
+        </div>
+
+        <div className="bg-surface border border-border rounded-2xl p-6 mb-6">
+          <h2 className="text-sm font-semibold text-white mb-3">
+            Strong moments
+          </h2>
+          <ul className="flex flex-col gap-2">
+            {score.strong_moments.map((point, i) => (
+              <li key={i} className="text-sm text-muted flex gap-2">
+                <span className="text-green-400">✓</span>
+                {point}
+              </li>
+            ))}
+          </ul>
+        </div>
+
+        {score.hedging_phrases.length > 0 && (
+          <div className="bg-surface border border-border rounded-2xl p-6 mb-6">
+            <h2 className="text-sm font-semibold text-white mb-3">
+              Hedging phrases
+            </h2>
+            <ul className="flex flex-col gap-2">
+              {score.hedging_phrases.map((phrase, i) => (
+                <li key={i} className="text-sm text-red-400">
+                  &ldquo;{phrase}&rdquo;
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
 
         <div className="bg-surface border border-border rounded-2xl p-6 mb-6">
           <h2 className="text-sm font-semibold text-white mb-3">Transcript</h2>
@@ -83,11 +138,13 @@ export default async function ResultsPage({
           </p>
         </div>
 
-        <div className="bg-surface border border-border rounded-2xl p-6 mb-6 flex items-center gap-4">
-          <div className="w-16 h-16 rounded-full bg-border flex items-center justify-center text-2xl shrink-0">
-            🧑‍💼
+        <div className="relative overflow-hidden bg-gradient-to-br from-surface to-background border border-border rounded-2xl p-6 mb-6 flex items-center gap-4">
+          <div className="w-16 h-16 rounded-full bg-black border border-border flex items-center justify-center text-2xl shrink-0 shadow-[0_0_20px_rgba(99,102,241,0.15)]">
+            🕴️
           </div>
-          <p className="text-sm text-muted">Boss reaction coming soon.</p>
+          <p className="text-sm text-muted italic">
+            The boss is watching. Come back tomorrow to face a new scenario.
+          </p>
         </div>
 
         <div className="text-center mb-8">

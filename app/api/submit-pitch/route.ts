@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { getOrCreateTodayScenario } from "@/lib/today-scenario";
-import { buildPlaceholderScore } from "@/lib/scoring";
+import { scorePitch } from "@/lib/scoring";
 import { todayDateString } from "@/lib/date";
 
 export async function POST(request: Request) {
@@ -35,12 +35,31 @@ export async function POST(request: Request) {
     typeof body.transcript === "string" ? body.transcript : "";
   const fillerCount: number =
     typeof body.fillerCount === "number" ? body.fillerCount : 0;
+  const fillerWords: string[] = Array.isArray(body.fillerWords)
+    ? body.fillerWords.filter((w: unknown): w is string => typeof w === "string")
+    : [];
   const wpm: number = typeof body.wpm === "number" ? body.wpm : 0;
 
   // The daily scenario is derived server-side rather than trusting the
   // client-supplied scenarioId, since it's a shared, date-keyed row.
   const scenario = await getOrCreateTodayScenario(user.id);
-  const score = buildPlaceholderScore({ fillerWords: fillerCount, wpm });
+
+  let score;
+  try {
+    score = await scorePitch({
+      scenario,
+      transcript,
+      fillerCount,
+      fillerWords,
+      wpm,
+    });
+  } catch (err) {
+    const message = err instanceof Error ? err.message : "Unknown error";
+    return NextResponse.json(
+      { error: `Scoring failed: ${message}` },
+      { status: 502 }
+    );
+  }
 
   const { data: attempt, error: insertError } = await supabase
     .from("pitch_attempts")
@@ -88,5 +107,5 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: streakError.message }, { status: 500 });
   }
 
-  return NextResponse.json({ attemptId: attempt.id });
+  return NextResponse.json({ attemptId: attempt.id, score });
 }
