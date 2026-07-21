@@ -46,6 +46,12 @@ export default async function HistoryPage() {
           >
             Dashboard
           </a>
+          <a
+            href="/feedback"
+            className="text-sm font-bold text-muted hover:text-foreground transition-colors"
+          >
+            Feedback
+          </a>
           <LogoutButton />
         </div>
       </header>

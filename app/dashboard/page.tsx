@@ -88,6 +88,12 @@ export default async function DashboardPage() {
           >
             History
           </Link>
+          <Link
+            href="/feedback"
+            className="text-sm font-bold text-muted hover:text-foreground transition-colors"
+          >
+            Feedback
+          </Link>
           <LogoutButton />
         </div>
       </header>
