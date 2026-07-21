@@ -4,7 +4,8 @@ import { getOrCreateTodayScenario } from "@/lib/today-scenario";
 import { scorePitch, generateBossDialogue } from "@/lib/scoring";
 import { bossStateForScore, FALLBACK_BOSS_DIALOGUE } from "@/lib/boss";
 import { todayDateString } from "@/lib/date";
-import type { PitchScore } from "@/lib/types";
+import { getMoodForDate } from "@/lib/marcusMood";
+import type { Milestone, PitchScore } from "@/lib/types";
 
 export async function POST(request: Request) {
   const supabase = await createClient();
@@ -42,9 +43,18 @@ export async function POST(request: Request) {
     : [];
   const wpm: number = typeof body.wpm === "number" ? body.wpm : 0;
 
+  if (!transcript || transcript.trim().length < 10) {
+    return NextResponse.json(
+      { error: "Transcript too short to score" },
+      { status: 400 }
+    );
+  }
+
   // The daily scenario is derived server-side rather than trusting the
   // client-supplied scenarioId, since it's a shared, date-keyed row.
   const scenario = await getOrCreateTodayScenario(user.id);
+
+  const mood = getMoodForDate(new Date());
 
   let scoreWithoutDialogue;
   try {
@@ -54,6 +64,7 @@ export async function POST(request: Request) {
       fillerCount,
       fillerWords,
       wpm,
+      moodTone: mood.dialogueTone,
     });
   } catch (err) {
     const message = err instanceof Error ? err.message : "Unknown error";
@@ -63,22 +74,33 @@ export async function POST(request: Request) {
     );
   }
 
-  const bossState = bossStateForScore(scoreWithoutDialogue.overall);
+  const moodAdjustedOverall = Math.min(
+    100,
+    Math.max(0, scoreWithoutDialogue.overall + mood.scoringModifier)
+  );
+
+  const bossState = bossStateForScore(moodAdjustedOverall);
 
   // Dialogue is flavor, not the core score — fall back rather than failing
   // the whole submission if Claude's second call has a hiccup.
   let bossDialogue: string[];
   try {
     bossDialogue = await generateBossDialogue({
-      overall: scoreWithoutDialogue.overall,
+      overall: moodAdjustedOverall,
       state: bossState,
       transcript,
+      moodTone: mood.dialogueTone,
     });
   } catch {
     bossDialogue = FALLBACK_BOSS_DIALOGUE[bossState];
   }
 
-  const score: PitchScore = { ...scoreWithoutDialogue, boss_dialogue: bossDialogue };
+  const score: PitchScore = {
+    ...scoreWithoutDialogue,
+    overall: moodAdjustedOverall,
+    boss_dialogue: bossDialogue,
+    mood: { name: mood.name, emoji: mood.emoji },
+  };
 
   const { data: attempt, error: insertError } = await supabase
     .from("pitch_attempts")
@@ -126,5 +148,13 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: streakError.message }, { status: 500 });
   }
 
-  return NextResponse.json({ attemptId: attempt.id, score });
+  const milestone: Milestone | null =
+    newStreak === 7 || newStreak === 14 || newStreak === 30 ? newStreak : null;
+
+  return NextResponse.json({
+    attemptId: attempt.id,
+    score,
+    milestone,
+    mood: { name: mood.name, emoji: mood.emoji },
+  });
 }

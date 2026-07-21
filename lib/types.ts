@@ -1,5 +1,7 @@
 export type Tier = "beginner" | "intermediate" | "advanced" | "expert";
 
+export type Milestone = 7 | 14 | 30;
+
 export type Scenario = {
   id: string;
   title: string;
@@ -33,6 +35,7 @@ export type PitchScore = {
   filler_words: number;
   wpm: number;
   boss_dialogue: string[];
+  mood: { name: string; emoji: string };
 };
 
 export type FillerWordsResult = {

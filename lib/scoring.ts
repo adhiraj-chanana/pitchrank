@@ -67,8 +67,9 @@ function buildPrompt(params: {
   fillerCount: number;
   fillerWords: string[];
   wpm: number;
+  moodTone: string;
 }): string {
-  const { scenario, transcript, fillerCount, fillerWords, wpm } = params;
+  const { scenario, transcript, fillerCount, fillerWords, wpm, moodTone } = params;
 
   return `You are an expert pitch coach who has trained thousands of professionals on cold pitching, networking, and interviewing.
 
@@ -84,6 +85,8 @@ ${transcript}
 SPEECH METRICS (from audio analysis):
 - Filler words: ${fillerCount} instances (${fillerWords.join(", ")})
 - Speaking pace: ${wpm} words per minute (ideal is 130-150 wpm)
+
+Marcus's mood today: ${moodTone}
 
 SCORING RULES:
 - Hook (0-10): Did they grab attention in the first 5 seconds? Leading with name/school/major = 4 or below. Leading with something specific/interesting = 7+
@@ -104,7 +107,8 @@ export async function scorePitch(params: {
   fillerCount: number;
   fillerWords: string[];
   wpm: number;
-}): Promise<Omit<PitchScore, "boss_dialogue">> {
+  moodTone: string;
+}): Promise<Omit<PitchScore, "boss_dialogue" | "mood">> {
   const message = await client.messages.create({
     model: "claude-haiku-4-5-20251001",
     max_tokens: 2048,
@@ -123,8 +127,12 @@ export async function scorePitch(params: {
 
   const input = toolUse.input as Omit<
     PitchScore,
-    "filler_words" | "wpm" | "boss_dialogue"
+    "filler_words" | "wpm" | "boss_dialogue" | "mood"
   >;
+
+  if (!input.overall && input.overall !== 0) {
+    input.overall = 0;
+  }
 
   return {
     ...input,
@@ -157,10 +165,13 @@ function buildBossDialoguePrompt(params: {
   overall: number;
   state: BossState;
   transcript: string;
+  moodTone: string;
 }): string {
-  const { overall, state, transcript } = params;
+  const { overall, state, transcript, moodTone } = params;
 
   return `You are a skeptical VC who just heard this pitch. Score was ${overall}/100. You are ${state}. Write exactly 3 short punchy lines of dialogue reacting to this specific pitch. Reference something they actually said. First line: very short (2-4 words). Second line: one sentence. Third line: one punchy sentence with a clear verdict. No quotes, no stage directions, just the lines.
+
+Your mood today: ${moodTone}
 
 THEIR PITCH:
 ${transcript}`;
@@ -170,6 +181,7 @@ export async function generateBossDialogue(params: {
   overall: number;
   state: BossState;
   transcript: string;
+  moodTone: string;
 }): Promise<string[]> {
   const message = await client.messages.create({
     model: "claude-haiku-4-5-20251001",

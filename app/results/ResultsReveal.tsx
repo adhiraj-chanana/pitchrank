@@ -62,6 +62,9 @@ export function ResultsReveal({
         <h1 className="text-4xl font-black text-center text-foreground mb-2">
           The verdict is in.
         </h1>
+        <p className="text-center text-xs text-gray-400 mb-4">
+          {score.mood.emoji} Marcus was {score.mood.name} today
+        </p>
         <div className="flex justify-center mb-6">
           <div className="w-24 h-1 bg-indigo-100 rounded-full overflow-hidden">
             <div

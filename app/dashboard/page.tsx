@@ -4,10 +4,17 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { getOrCreateTodayScenario } from "@/lib/today-scenario";
 import { todayDateString } from "@/lib/date";
-import { nextTierProgress, streakProgressMessage } from "@/lib/tiers";
+import {
+  nextTierProgress,
+  streakProgressMessage,
+  tierForStreak,
+  TIER_LABELS,
+} from "@/lib/tiers";
 import { bossStateForScore, BOSS_STATE_CONFIG } from "@/lib/boss";
+import { getMoodForDate } from "@/lib/marcusMood";
 import { Logo } from "@/components/Logo";
 import { LogoutButton } from "@/components/LogoutButton";
+import { MilestoneBanner } from "@/components/MilestoneBanner";
 import type { PitchAttempt, PitchScore } from "@/lib/types";
 
 function scoreBadgeColor(score: number): string {
@@ -54,8 +61,24 @@ export default async function DashboardPage() {
 
   const name = (user.user_metadata?.name as string | undefined) ?? "there";
 
+  const mood = getMoodForDate(new Date());
+
+  const unlockedToday =
+    (currentStreak === 7 || currentStreak === 14 || currentStreak === 30) &&
+    streakRow?.last_completed_date === today;
+  const unlockedTierLabel = unlockedToday
+    ? TIER_LABELS[tierForStreak(currentStreak)]
+    : null;
+
   return (
     <div className="min-h-screen bg-background">
+      {unlockedTierLabel && (
+        <MilestoneBanner
+          tierLabel={unlockedTierLabel}
+          storageKey={`milestone-dismissed-${user.id}-${currentStreak}-${today}`}
+        />
+      )}
+
       <header className="flex items-center justify-between px-6 py-6 sm:px-10 max-w-4xl mx-auto w-full">
         <Logo href="/dashboard" />
         <div className="flex items-center gap-6">
@@ -134,6 +157,9 @@ export default async function DashboardPage() {
           <h2 className="text-2xl font-black text-white mb-2">
             {scenario.title}
           </h2>
+          <p className="text-sm text-indigo-200 italic mb-2">
+            {mood.emoji} Marcus is {mood.name} today — {mood.description}
+          </p>
           <p className="text-sm text-indigo-200 font-medium mb-4 leading-relaxed">
             {scenario.context}
           </p>

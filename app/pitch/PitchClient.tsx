@@ -6,7 +6,13 @@ import Image from "next/image";
 import { createClient } from "@/lib/supabase/client";
 import { HighlightedTranscript } from "@/components/HighlightedTranscript";
 import { MicIcon } from "@/components/Logo";
-import type { Scenario, TranscribeStatusResponse, FillerWordsResult } from "@/lib/types";
+import { StreakCelebration } from "@/components/StreakCelebration";
+import type {
+  Scenario,
+  TranscribeStatusResponse,
+  FillerWordsResult,
+  Milestone,
+} from "@/lib/types";
 
 const RECORDING_SECONDS = 60;
 const POLL_INTERVAL_MS = 2000;
@@ -62,6 +68,8 @@ export function PitchClient({ scenario }: { scenario: Scenario }) {
   const [transcript, setTranscript] = useState("");
   const [fillerWords, setFillerWords] = useState<FillerWordsResult | null>(null);
   const [wpm, setWpm] = useState<number | null>(null);
+  const [milestone, setMilestone] = useState<Milestone | null>(null);
+  const [pendingAttemptId, setPendingAttemptId] = useState<string | null>(null);
 
   const streamRef = useRef<MediaStream | null>(null);
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
@@ -356,11 +364,25 @@ export function PitchClient({ scenario }: { scenario: Scenario }) {
         throw new Error(body.error ?? "Failed to submit pitch.");
       }
 
-      const { attemptId } = await res.json();
+      const { attemptId, milestone: newMilestone } = await res.json();
+
+      if (newMilestone) {
+        setPendingAttemptId(attemptId);
+        setMilestone(newMilestone);
+        return;
+      }
+
       router.push(`/results?attemptId=${attemptId}`);
     } catch (err) {
       setStatus("transcribed");
       setError(err instanceof Error ? err.message : "Something went wrong.");
+    }
+  }
+
+  function handleCelebrationDismiss() {
+    setMilestone(null);
+    if (pendingAttemptId) {
+      router.push(`/results?attemptId=${pendingAttemptId}`);
     }
   }
 
@@ -369,6 +391,12 @@ export function PitchClient({ scenario }: { scenario: Scenario }) {
 
   return (
     <div className="min-h-screen bg-indigo-950 text-white flex flex-col px-6 py-10">
+      {milestone && (
+        <StreakCelebration
+          milestone={milestone}
+          onDismiss={handleCelebrationDismiss}
+        />
+      )}
       <div className="max-w-2xl mx-auto w-full flex-1 flex flex-col">
         <div className="bg-indigo-900 border border-indigo-800 rounded-2xl shadow-lg p-6 mb-10">
           <div className="flex items-center justify-between mb-3">
