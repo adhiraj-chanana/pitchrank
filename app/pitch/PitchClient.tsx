@@ -23,22 +23,33 @@ type Status =
   | "transcribed"
   | "submitting"
   | "upload-error"
-  | "transcribe-error";
+  | "transcribe-error"
+  | "recorder-error";
 
 const MIME_CANDIDATES = [
-  "audio/webm;codecs=opus",
-  "audio/webm",
-  "audio/mp4;codecs=mp4a.40.2",
-  "audio/mp4",
+  "audio/mp4", // iOS Safari
+  "audio/aac", // iOS fallback
+  "audio/webm;codecs=opus", // Chrome
+  "audio/webm", // Chrome fallback
+  "audio/ogg;codecs=opus", // Firefox
+  "", // browser default
 ];
 
 function getSupportedMimeType(): string {
-  for (const type of MIME_CANDIDATES) {
-    if (typeof MediaRecorder !== "undefined" && MediaRecorder.isTypeSupported(type)) {
-      return type;
-    }
-  }
-  return "";
+  if (typeof MediaRecorder === "undefined") return "";
+  return (
+    MIME_CANDIDATES.find(
+      (type) => type === "" || MediaRecorder.isTypeSupported(type)
+    ) ?? ""
+  );
+}
+
+function getFileExtension(mimeType: string): string {
+  if (mimeType.includes("mp4")) return "mp4";
+  if (mimeType.includes("aac")) return "aac";
+  if (mimeType.includes("webm")) return "webm";
+  if (mimeType.includes("ogg")) return "ogg";
+  return "audio";
 }
 
 export function PitchClient({ scenario }: { scenario: Scenario }) {
@@ -85,7 +96,14 @@ export function PitchClient({ scenario }: { scenario: Scenario }) {
 
     setMicStatus("requesting");
     try {
-      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      const stream = await navigator.mediaDevices.getUserMedia({
+        audio: {
+          echoCancellation: true,
+          noiseSuppression: true,
+          sampleRate: 44100,
+          channelCount: 1,
+        },
+      });
       streamRef.current = stream;
       setMicStatus("ready");
     } catch {
@@ -161,16 +179,29 @@ export function PitchClient({ scenario }: { scenario: Scenario }) {
     if (!stream) return;
 
     const mimeType = getSupportedMimeType();
-    mimeTypeRef.current = mimeType;
     chunksRef.current = [];
 
-    const recorder = new MediaRecorder(stream, mimeType ? { mimeType } : undefined);
+    let recorder: MediaRecorder;
+    try {
+      recorder = new MediaRecorder(stream, mimeType ? { mimeType } : undefined);
+    } catch {
+      setStatus("recorder-error");
+      setError(
+        "Your browser may not support recording. Please try Chrome on desktop for the best experience."
+      );
+      return;
+    }
+
+    // recorder.mimeType reflects what the browser actually chose, which is
+    // more reliable than our requested mimeType when it fell back to "".
+    mimeTypeRef.current = recorder.mimeType || mimeType;
+
     recorder.ondataavailable = (e) => {
       if (e.data.size > 0) chunksRef.current.push(e.data);
     };
     recorder.onstop = () => {
       const blob = new Blob(chunksRef.current, {
-        type: mimeType || "audio/webm",
+        type: mimeTypeRef.current || "audio/mp4",
       });
       audioBlobRef.current = blob;
       stream.getTracks().forEach((t) => t.stop());
@@ -179,7 +210,8 @@ export function PitchClient({ scenario }: { scenario: Scenario }) {
     };
 
     mediaRecorderRef.current = recorder;
-    recorder.start(250);
+    // iOS requires a timeslice for MediaRecorder to actually flush chunks.
+    recorder.start(1000);
 
     setStatus("recording");
     setSecondsLeft(RECORDING_SECONDS);
@@ -241,7 +273,7 @@ export function PitchClient({ scenario }: { scenario: Scenario }) {
       } = await supabase.auth.getUser();
       if (!user) throw new Error("Not authenticated.");
 
-      const ext = (mimeTypeRef.current || blob.type).includes("mp4") ? "mp4" : "webm";
+      const ext = getFileExtension(mimeTypeRef.current || blob.type);
       const path = `${user.id}/${crypto.randomUUID()}.${ext}`;
       uploadPathRef.current = path;
 
@@ -372,6 +404,10 @@ export function PitchClient({ scenario }: { scenario: Scenario }) {
               microphone permissions in your browser&apos;s site settings, then
               try again.
             </p>
+            <p className="text-indigo-300 font-medium text-sm">
+              On iPhone, go to Settings → Safari → Microphone and make sure
+              it&apos;s enabled.
+            </p>
             <button
               onClick={requestMicAccess}
               className="bg-accent hover:bg-accent-hover text-white font-bold px-6 py-3 rounded-full shadow-lg transition-all hover:scale-105"
@@ -427,6 +463,21 @@ export function PitchClient({ scenario }: { scenario: Scenario }) {
                 </span>
                 <span className="text-white font-bold text-lg">Tap to start</span>
               </button>
+            )}
+
+            {status === "recorder-error" && (
+              <div className="w-full max-w-md flex flex-col items-center gap-4 text-center">
+                <p className="text-danger font-bold text-sm">{error}</p>
+                <button
+                  onClick={() => {
+                    setError(null);
+                    setStatus("idle");
+                  }}
+                  className="bg-accent hover:bg-accent-hover text-white font-bold px-6 py-3 rounded-full shadow-lg transition-all hover:scale-105"
+                >
+                  Try again
+                </button>
+              </div>
             )}
 
             {status === "recording" && (
