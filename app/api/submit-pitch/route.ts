@@ -1,8 +1,10 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { getOrCreateTodayScenario } from "@/lib/today-scenario";
-import { scorePitch } from "@/lib/scoring";
+import { scorePitch, generateBossDialogue } from "@/lib/scoring";
+import { bossStateForScore, FALLBACK_BOSS_DIALOGUE } from "@/lib/boss";
 import { todayDateString } from "@/lib/date";
+import type { PitchScore } from "@/lib/types";
 
 export async function POST(request: Request) {
   const supabase = await createClient();
@@ -44,9 +46,9 @@ export async function POST(request: Request) {
   // client-supplied scenarioId, since it's a shared, date-keyed row.
   const scenario = await getOrCreateTodayScenario(user.id);
 
-  let score;
+  let scoreWithoutDialogue;
   try {
-    score = await scorePitch({
+    scoreWithoutDialogue = await scorePitch({
       scenario,
       transcript,
       fillerCount,
@@ -60,6 +62,23 @@ export async function POST(request: Request) {
       { status: 502 }
     );
   }
+
+  const bossState = bossStateForScore(scoreWithoutDialogue.overall);
+
+  // Dialogue is flavor, not the core score — fall back rather than failing
+  // the whole submission if Claude's second call has a hiccup.
+  let bossDialogue: string[];
+  try {
+    bossDialogue = await generateBossDialogue({
+      overall: scoreWithoutDialogue.overall,
+      state: bossState,
+      transcript,
+    });
+  } catch {
+    bossDialogue = FALLBACK_BOSS_DIALOGUE[bossState];
+  }
+
+  const score: PitchScore = { ...scoreWithoutDialogue, boss_dialogue: bossDialogue };
 
   const { data: attempt, error: insertError } = await supabase
     .from("pitch_attempts")

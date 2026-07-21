@@ -37,3 +37,10 @@ export const TIER_LABELS: Record<Tier, string> = {
   advanced: "Advanced",
   expert: "Expert",
 };
+
+export function streakProgressMessage(streak: number): string {
+  if (streak < 7) return "Keep going — Intermediate unlocks at day 7";
+  if (streak < 14) return "Intermediate unlocked! Advanced at day 14";
+  if (streak < 30) return "Advanced unlocked! Expert at day 30";
+  return "Expert tier. You're in rare company.";
+}

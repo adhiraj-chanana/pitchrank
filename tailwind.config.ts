@@ -10,15 +10,18 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        background: "#0a0a0a",
-        surface: "#141414",
-        border: "#262626",
-        foreground: "#ffffff",
-        muted: "#a3a3a3",
+        background: "#fafafa",
+        surface: "#ffffff",
+        border: "#e5e7eb",
+        foreground: "#111827",
+        muted: "#6b7280",
         accent: {
-          DEFAULT: "#6366f1",
-          hover: "#4f46e5",
+          DEFAULT: "#4f46e5",
+          hover: "#4338ca",
         },
+        success: "#22c55e",
+        warning: "#f59e0b",
+        danger: "#ef4444",
       },
       keyframes: {
         "pulse-ring": {

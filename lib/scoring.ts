@@ -1,5 +1,6 @@
 import Anthropic from "@anthropic-ai/sdk";
 import type { PitchScore, Scenario } from "@/lib/types";
+import type { BossState } from "@/lib/boss";
 
 const client = new Anthropic();
 
@@ -103,7 +104,7 @@ export async function scorePitch(params: {
   fillerCount: number;
   fillerWords: string[];
   wpm: number;
-}): Promise<PitchScore> {
+}): Promise<Omit<PitchScore, "boss_dialogue">> {
   const message = await client.messages.create({
     model: "claude-haiku-4-5-20251001",
     max_tokens: 2048,
@@ -120,11 +121,72 @@ export async function scorePitch(params: {
     throw new Error("Claude did not return a score_pitch tool call.");
   }
 
-  const input = toolUse.input as Omit<PitchScore, "filler_words" | "wpm">;
+  const input = toolUse.input as Omit<
+    PitchScore,
+    "filler_words" | "wpm" | "boss_dialogue"
+  >;
 
   return {
     ...input,
     filler_words: params.fillerCount,
     wpm: params.wpm,
   };
+}
+
+const BOSS_DIALOGUE_TOOL: Anthropic.Tool = {
+  name: "generate_boss_dialogue",
+  description:
+    "Generate exactly 3 lines of in-character boss dialogue reacting to a pitch.",
+  input_schema: {
+    type: "object",
+    properties: {
+      lines: {
+        type: "array",
+        items: { type: "string" },
+        minItems: 3,
+        maxItems: 3,
+        description:
+          "Exactly 3 lines. Line 1: very short (2-4 words). Line 2: one sentence. Line 3: one punchy sentence with a clear verdict. No quotes, no stage directions.",
+      },
+    },
+    required: ["lines"],
+  },
+};
+
+function buildBossDialoguePrompt(params: {
+  overall: number;
+  state: BossState;
+  transcript: string;
+}): string {
+  const { overall, state, transcript } = params;
+
+  return `You are a skeptical VC who just heard this pitch. Score was ${overall}/100. You are ${state}. Write exactly 3 short punchy lines of dialogue reacting to this specific pitch. Reference something they actually said. First line: very short (2-4 words). Second line: one sentence. Third line: one punchy sentence with a clear verdict. No quotes, no stage directions, just the lines.
+
+THEIR PITCH:
+${transcript}`;
+}
+
+export async function generateBossDialogue(params: {
+  overall: number;
+  state: BossState;
+  transcript: string;
+}): Promise<string[]> {
+  const message = await client.messages.create({
+    model: "claude-haiku-4-5-20251001",
+    max_tokens: 512,
+    tools: [BOSS_DIALOGUE_TOOL],
+    tool_choice: { type: "tool", name: "generate_boss_dialogue" },
+    messages: [{ role: "user", content: buildBossDialoguePrompt(params) }],
+  });
+
+  const toolUse = message.content.find(
+    (block): block is Anthropic.ToolUseBlock => block.type === "tool_use"
+  );
+
+  if (!toolUse) {
+    throw new Error("Claude did not return a generate_boss_dialogue tool call.");
+  }
+
+  const { lines } = toolUse.input as { lines: string[] };
+  return lines;
 }

@@ -32,6 +32,7 @@ export type PitchScore = {
   strong_moments: string[];
   filler_words: number;
   wpm: number;
+  boss_dialogue: string[];
 };
 
 export type FillerWordsResult = {

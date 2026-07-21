@@ -2,8 +2,10 @@
 
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
 import { createClient } from "@/lib/supabase/client";
 import { HighlightedTranscript } from "@/components/HighlightedTranscript";
+import { MicIcon } from "@/components/Logo";
 import type { Scenario, TranscribeStatusResponse, FillerWordsResult } from "@/lib/types";
 
 const RECORDING_SECONDS = 60;
@@ -125,7 +127,7 @@ export function PitchClient({ scenario }: { scenario: Scenario }) {
       for (let i = 0; i < WAVEFORM_BAR_COUNT; i++) {
         const value = dataArray[i * step] ?? 0;
         const barHeight = Math.max(4, (value / 255) * height);
-        ctx.fillStyle = "#ef4444";
+        ctx.fillStyle = "#ffffff";
         ctx.fillRect(i * barWidth, height - barHeight, barWidth - 2, barHeight);
       }
 
@@ -146,7 +148,7 @@ export function PitchClient({ scenario }: { scenario: Scenario }) {
     const ctx = canvas?.getContext("2d");
     if (canvas && ctx) {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
-      ctx.fillStyle = "#262626";
+      ctx.fillStyle = "#4338ca";
       const barWidth = canvas.width / WAVEFORM_BAR_COUNT;
       for (let i = 0; i < WAVEFORM_BAR_COUNT; i++) {
         ctx.fillRect(i * barWidth, canvas.height / 2 - 2, barWidth - 2, 4);
@@ -334,34 +336,45 @@ export function PitchClient({ scenario }: { scenario: Scenario }) {
   const seconds = secondsLeft % 60;
 
   return (
-    <div className="min-h-screen flex flex-col px-6 py-10">
+    <div className="min-h-screen bg-indigo-950 text-white flex flex-col px-6 py-10">
       <div className="max-w-2xl mx-auto w-full flex-1 flex flex-col">
-        <div className="mb-10">
-          <span className="text-xs uppercase tracking-wide text-muted border border-border rounded-full px-2.5 py-1">
-            {scenario.tier}
-          </span>
-          <h1 className="text-2xl font-bold text-white mt-4">{scenario.title}</h1>
-          <p className="text-muted mt-2 leading-relaxed">{scenario.context}</p>
-          <p className="text-white italic mt-4 text-lg">&ldquo;{scenario.prompt}&rdquo;</p>
+        <div className="bg-indigo-900 border border-indigo-800 rounded-2xl shadow-lg p-6 mb-10">
+          <div className="flex items-center justify-between mb-3">
+            <span className="text-xs uppercase tracking-widest text-indigo-300 font-black">
+              You&apos;re being judged on:
+            </span>
+            <span className="text-xs uppercase tracking-wide text-indigo-200 font-bold border border-indigo-600 rounded-full px-3 py-1">
+              {scenario.tier}
+            </span>
+          </div>
+          <h1 className="text-2xl font-black text-white">{scenario.title}</h1>
+          <p className="text-indigo-300 font-medium mt-2 text-sm leading-relaxed">
+            {scenario.context}
+          </p>
+          <p className="text-indigo-100 italic font-medium mt-4 text-lg">
+            &ldquo;{scenario.prompt}&rdquo;
+          </p>
         </div>
 
         {micStatus === "requesting" && (
           <div className="flex-1 flex flex-col items-center justify-center gap-3 text-center">
-            <p className="text-muted">Requesting microphone access...</p>
+            <p className="text-indigo-300 font-medium">
+              Requesting microphone access...
+            </p>
           </div>
         )}
 
         {micStatus === "denied" && (
           <div className="flex-1 flex flex-col items-center justify-center gap-4 text-center max-w-sm mx-auto">
-            <p className="text-white font-semibold">Microphone access needed</p>
-            <p className="text-muted text-sm">
+            <p className="text-white font-black text-lg">Microphone access needed</p>
+            <p className="text-indigo-300 font-medium text-sm">
               PitchRank needs your microphone to record your pitch. Please allow
               microphone permissions in your browser&apos;s site settings, then
               try again.
             </p>
             <button
               onClick={requestMicAccess}
-              className="bg-accent hover:bg-accent-hover text-white font-medium px-6 py-2.5 rounded-lg transition-colors"
+              className="bg-accent hover:bg-accent-hover text-white font-bold px-6 py-3 rounded-full shadow-lg transition-all hover:scale-105"
             >
               Try again
             </button>
@@ -370,8 +383,8 @@ export function PitchClient({ scenario }: { scenario: Scenario }) {
 
         {micStatus === "unsupported" && (
           <div className="flex-1 flex flex-col items-center justify-center gap-3 text-center max-w-sm mx-auto">
-            <p className="text-white font-semibold">Browser not supported</p>
-            <p className="text-muted text-sm">
+            <p className="text-white font-black text-lg">Browser not supported</p>
+            <p className="text-indigo-300 font-medium text-sm">
               Your browser doesn&apos;t support audio recording. Try the latest
               version of Chrome, Safari, or Firefox.
             </p>
@@ -380,91 +393,129 @@ export function PitchClient({ scenario }: { scenario: Scenario }) {
 
         {micStatus === "ready" && (
           <div className="flex-1 flex flex-col items-center justify-center gap-8">
-            {(status === "recording" || status === "uploading" || status === "transcribing") && (
-              <div className="text-6xl font-mono font-bold text-white tabular-nums">
+            {status === "recording" && (
+              <span className="bg-danger text-white text-xs font-black uppercase tracking-widest px-4 py-1.5 rounded-full animate-pulse">
+                ● Recording
+              </span>
+            )}
+
+            {status === "recording" && (
+              <div className="text-8xl font-black text-white tabular-nums">
                 {minutes}:{seconds.toString().padStart(2, "0")}
               </div>
             )}
 
-            <canvas
-              ref={canvasRef}
-              width={600}
-              height={96}
-              className="w-full max-w-md h-24"
-            />
+            {status === "recording" && (
+              <div className="relative flex items-center justify-center w-72 h-72">
+                <div className="absolute inset-0 rounded-full bg-indigo-800/50 animate-pulse pointer-events-none" />
+                <canvas
+                  ref={canvasRef}
+                  width={600}
+                  height={96}
+                  className="relative w-full max-w-md h-24"
+                />
+              </div>
+            )}
 
             {status === "idle" && (
               <button
                 onClick={startRecording}
-                className="w-28 h-28 rounded-full bg-accent hover:bg-accent-hover text-white font-semibold flex items-center justify-center transition-colors"
+                className="flex flex-col items-center gap-4 group"
               >
-                Record
+                <span className="w-40 h-40 rounded-full bg-indigo-900 border-4 border-indigo-700 flex items-center justify-center shadow-lg transition-all group-hover:scale-105 group-hover:border-indigo-500">
+                  <MicIcon className="w-24 h-24 text-accent" />
+                </span>
+                <span className="text-white font-bold text-lg">Tap to start</span>
               </button>
             )}
 
             {status === "recording" && (
-              <div className="flex flex-col items-center gap-4">
-                <div className="w-28 h-28 rounded-full bg-red-500 text-white font-semibold flex items-center justify-center animate-pulse-ring">
-                  ● Rec
-                </div>
-                <button
-                  onClick={stopRecording}
-                  className="bg-surface border border-border hover:border-white/30 text-white font-medium px-6 py-2.5 rounded-lg transition-colors"
-                >
-                  Stop Recording
-                </button>
-              </div>
+              <button
+                onClick={stopRecording}
+                className="bg-white hover:bg-indigo-50 text-indigo-900 font-black text-lg px-8 py-4 rounded-full shadow-lg transition-all hover:scale-105"
+              >
+                Stop Recording
+              </button>
             )}
 
             {status === "uploading" && (
-              <p className="text-muted text-lg animate-pulse">Uploading your pitch...</p>
+              <div className="bg-indigo-900 border border-indigo-800 rounded-2xl shadow-lg px-8 py-6 flex items-center gap-4">
+                <div className="w-8 h-8 rounded-full border-4 border-indigo-700 border-t-white animate-spin shrink-0" />
+                <Image
+                  src="/boss/boss-interested.png"
+                  alt="The boss, waiting"
+                  width={40}
+                  height={40}
+                  className="w-10 h-10 rounded-full object-cover shrink-0"
+                />
+                <p className="text-white font-medium">Uploading your pitch...</p>
+              </div>
             )}
 
             {status === "transcribing" && (
-              <p className="text-muted text-lg animate-pulse">Transcribing...</p>
+              <div className="bg-indigo-900 border border-indigo-800 rounded-2xl shadow-lg px-8 py-6 flex items-center gap-4">
+                <div className="w-8 h-8 rounded-full border-4 border-indigo-700 border-t-white animate-spin shrink-0" />
+                <Image
+                  src="/boss/boss-interested.png"
+                  alt="The boss, waiting"
+                  width={40}
+                  height={40}
+                  className="w-10 h-10 rounded-full object-cover shrink-0"
+                />
+                <p className="text-white font-medium">Transcribing...</p>
+              </div>
+            )}
+
+            {status === "submitting" && (
+              <div className="bg-indigo-900 border border-indigo-800 rounded-2xl shadow-lg px-8 py-6 flex items-center gap-4">
+                <div className="w-8 h-8 rounded-full border-4 border-indigo-700 border-t-white animate-spin shrink-0" />
+                <Image
+                  src="/boss/boss-attentive.png"
+                  alt="The boss, reviewing your pitch"
+                  width={40}
+                  height={40}
+                  className="w-10 h-10 rounded-full object-cover shrink-0"
+                />
+                <p className="text-white font-medium">
+                  The boss is reviewing your pitch...
+                </p>
+              </div>
             )}
 
             {(status === "upload-error" || status === "transcribe-error") && (
               <div className="w-full max-w-md flex flex-col items-center gap-4 text-center">
-                <p className="text-red-400 text-sm">{error}</p>
+                <p className="text-danger font-bold text-sm">{error}</p>
                 <button
                   onClick={retryPipeline}
-                  className="bg-accent hover:bg-accent-hover text-white font-medium px-6 py-2.5 rounded-lg transition-colors"
+                  className="bg-accent hover:bg-accent-hover text-white font-bold px-6 py-3 rounded-full shadow-lg transition-all hover:scale-105"
                 >
                   Retry
                 </button>
               </div>
             )}
 
-            {(status === "transcribed" || status === "submitting") && (
+            {status === "transcribed" && (
               <div className="w-full flex flex-col items-center gap-6">
-                <div className="w-full bg-surface border border-border rounded-xl p-5 text-sm text-white leading-relaxed max-h-64 overflow-y-auto">
+                <div className="w-full bg-indigo-900 border border-indigo-800 rounded-2xl shadow-lg p-5 text-sm text-white font-medium leading-relaxed max-h-64 overflow-y-auto">
                   <HighlightedTranscript text={transcript} />
                 </div>
 
-                <div className="flex items-center gap-6 text-sm text-muted">
-                  <span>
-                    <span className="text-white font-semibold">
-                      {fillerWords?.count ?? 0}
-                    </span>{" "}
-                    filler words
+                <div className="flex items-center gap-3">
+                  <span className="bg-orange-500/20 text-orange-300 text-sm font-bold px-4 py-1.5 rounded-full">
+                    {fillerWords?.count ?? 0} filler words
                   </span>
-                  <span>
-                    <span className="text-white font-semibold">{wpm ?? 0}</span>{" "}
-                    words/min
+                  <span className="bg-indigo-500/20 text-indigo-200 text-sm font-bold px-4 py-1.5 rounded-full">
+                    {wpm ?? 0} words/min
                   </span>
                 </div>
 
-                {error && <p className="text-sm text-red-400">{error}</p>}
+                {error && <p className="text-sm font-bold text-danger">{error}</p>}
 
                 <button
                   onClick={handleFinalSubmit}
-                  disabled={status === "submitting"}
-                  className="w-full max-w-sm bg-accent hover:bg-accent-hover disabled:opacity-50 text-white font-semibold py-3 rounded-xl transition-colors"
+                  className="w-full max-w-sm bg-white hover:bg-indigo-50 text-indigo-900 font-black py-4 rounded-full shadow-lg transition-all hover:scale-105"
                 >
-                  {status === "submitting"
-                    ? "The boss is reviewing your pitch..."
-                    : "Looks good, score my pitch"}
+                  Looks good, score my pitch
                 </button>
               </div>
             )}

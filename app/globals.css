@@ -3,16 +3,111 @@
 @tailwind utilities;
 
 html {
-  color-scheme: dark;
+  color-scheme: light;
 }
 
 body {
-  color: #ffffff;
-  background: #0a0a0a;
+  color: #111827;
+  background: #fafafa;
+}
+
+@keyframes fade-in-up {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes float {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-8px);
+  }
+}
+
+@keyframes bubble-pulse {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.02);
+  }
+}
+
+@keyframes bossFloat {
+  0%,
+  100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-6px);
+  }
+}
+
+@keyframes bossReact {
+  0% {
+    transform: translateY(-6px) rotate(0deg);
+  }
+  25% {
+    transform: translateY(-6px) rotate(-2deg) scale(1.05);
+  }
+  50% {
+    transform: translateY(-6px) rotate(2deg) scale(1.05);
+  }
+  75% {
+    transform: translateY(-6px) rotate(-1deg) scale(1.02);
+  }
+  100% {
+    transform: translateY(-6px) rotate(0deg) scale(1);
+  }
+}
+
+@keyframes glowPulse {
+  0%,
+  100% {
+    opacity: 0.4;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.8;
+    transform: scale(1.05);
+  }
 }
 
 @layer utilities {
   .text-balance {
     text-wrap: balance;
+  }
+
+  .animate-fade-in-up {
+    animation: fade-in-up 0.7s ease-out both;
+  }
+
+  .animate-float {
+    animation: float 3s ease-in-out infinite;
+  }
+
+  .animate-bubble-pulse {
+    animation: bubble-pulse 2s ease-in-out infinite;
+  }
+
+  .animate-boss-float {
+    animation: bossFloat 3s ease-in-out infinite;
+  }
+
+  .animate-boss-react {
+    animation: bossReact 600ms ease-in-out 1;
+  }
+
+  .animate-glow-pulse {
+    animation: glowPulse 2s ease-in-out infinite;
   }
 }

@@ -43,13 +43,20 @@ export default function LoginPage() {
       <div className="mb-8">
         <Logo />
       </div>
-      <div className="w-full max-w-sm bg-surface border border-border rounded-2xl p-8">
-        <h1 className="text-2xl font-semibold text-white mb-1">Welcome back</h1>
-        <p className="text-sm text-muted mb-6">Log in to keep your streak alive.</p>
+      <div className="w-full max-w-sm bg-surface border-[3px] border-accent rounded-3xl shadow-lg p-8">
+        <h1 className="text-2xl font-black text-foreground mb-1">
+          Welcome back
+        </h1>
+        <p className="text-sm text-muted font-medium mb-6">
+          Log in to keep your streak alive.
+        </p>
 
         <form onSubmit={handleSubmit} className="flex flex-col gap-4">
           <div>
-            <label className="block text-sm text-muted mb-1.5" htmlFor="email">
+            <label
+              className="block text-sm font-bold text-muted mb-1.5"
+              htmlFor="email"
+            >
               Email
             </label>
             <input
@@ -58,12 +65,15 @@ export default function LoginPage() {
               required
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="w-full bg-background border border-border rounded-lg px-3.5 py-2.5 text-white placeholder:text-muted focus:outline-none focus:ring-2 focus:ring-accent"
+              className="w-full bg-background border-2 border-border rounded-2xl px-4 py-3 text-foreground font-medium placeholder:text-muted focus:outline-none focus:ring-2 focus:ring-accent focus:border-accent"
               placeholder="you@example.com"
             />
           </div>
           <div>
-            <label className="block text-sm text-muted mb-1.5" htmlFor="password">
+            <label
+              className="block text-sm font-bold text-muted mb-1.5"
+              htmlFor="password"
+            >
               Password
             </label>
             <input
@@ -72,25 +82,25 @@ export default function LoginPage() {
               required
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="w-full bg-background border border-border rounded-lg px-3.5 py-2.5 text-white placeholder:text-muted focus:outline-none focus:ring-2 focus:ring-accent"
+              className="w-full bg-background border-2 border-border rounded-2xl px-4 py-3 text-foreground font-medium placeholder:text-muted focus:outline-none focus:ring-2 focus:ring-accent focus:border-accent"
               placeholder="••••••••"
             />
           </div>
 
-          {error && <p className="text-sm text-red-400">{error}</p>}
+          {error && <p className="text-sm font-bold text-danger">{error}</p>}
 
           <button
             type="submit"
             disabled={loading}
-            className="mt-2 w-full bg-accent hover:bg-accent-hover disabled:opacity-50 text-white font-medium py-2.5 rounded-lg transition-colors"
+            className="mt-2 w-full bg-accent hover:bg-accent-hover disabled:opacity-50 text-white font-bold py-3 rounded-full shadow-lg transition-all hover:scale-105 disabled:hover:scale-100"
           >
             {loading ? "Logging in..." : "Log in"}
           </button>
         </form>
 
-        <p className="mt-6 text-sm text-muted text-center">
+        <p className="mt-6 text-sm text-muted font-medium text-center">
           Don&apos;t have an account?{" "}
-          <Link href="/signup" className="text-accent hover:text-accent-hover">
+          <Link href="/signup" className="text-accent font-bold hover:text-accent-hover">
             Sign up
           </Link>
         </p>
