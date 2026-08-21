@@ -14,7 +14,7 @@ import os
 from supabase import create_client
 
 CSV_PATH = "scenarios.csv"
-REQUIRED_COLUMNS = ["title", "context", "prompt", "tier"]
+REQUIRED_COLUMNS = ["title", "context", "prompt", "tier", "category"]
 VALID_TIERS = {"beginner", "intermediate", "advanced", "expert"}
 
 
@@ -46,6 +46,18 @@ def main() -> None:
     print(f"Loaded {len(rows)} rows from {CSV_PATH}")
 
     client = create_client(url, key)
+
+    # Category slug -> id, looked up at runtime rather than hardcoded (unlike
+    # VALID_TIERS above) so adding a new category is just a DB insert, not a
+    # code change here.
+    categories_resp = client.table("categories").select("id, slug").execute()
+    category_by_slug = {row["slug"]: row["id"] for row in categories_resp.data}
+    if not category_by_slug:
+        print(
+            "No rows in the categories table. Run the categories migration "
+            "(supabase/migrations/001_add_categories_step_a.sql) first."
+        )
+        sys.exit(1)
 
     zero_uuid = "00000000-0000-0000-0000-000000000000"
 
@@ -82,11 +94,21 @@ def main() -> None:
             failed += 1
             continue
 
+        category_slug = (row.get("category") or "").strip()
+        category_id = category_by_slug.get(category_slug)
+        if category_id is None:
+            print(
+                f"[{i}/{len(rows)}] Skipping row with unknown category {category_slug!r}: {row.get('title')!r}"
+            )
+            failed += 1
+            continue
+
         payload = {
             "title": (row.get("title") or "").strip(),
             "context": (row.get("context") or "").strip(),
             "prompt": (row.get("prompt") or "").strip(),
             "tier": tier,
+            "category_id": category_id,
         }
 
         try:

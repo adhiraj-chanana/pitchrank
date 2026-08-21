@@ -14,6 +14,8 @@ export default async function PitchPage() {
     redirect("/login");
   }
 
+  // Same global (not per-category) check as app/api/submit-pitch/route.ts —
+  // see the note there before changing this when a second category ships.
   const { data: todayAttempt } = await supabase
     .from("pitch_attempts")
     .select("id")

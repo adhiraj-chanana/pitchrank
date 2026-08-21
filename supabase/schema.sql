@@ -5,18 +5,31 @@
 -- TABLES
 -- ============================================================
 
+create table if not exists categories (
+  id uuid primary key default gen_random_uuid(),
+  slug text not null unique,
+  name text not null,
+  description text,
+  sort_order int not null default 0,
+  created_at timestamptz default now()
+);
+
 create table if not exists scenarios (
   id uuid primary key default gen_random_uuid(),
   title text not null,
   context text not null,
   prompt text not null,
   tier text not null check (tier in ('beginner','intermediate','advanced','expert')),
+  category_id uuid not null references categories(id),
   created_at timestamptz default now()
 );
 
+-- One scenario per day, per category (not globally per day) — the unique
+-- index below is the enforcement point.
 create table if not exists daily_scenarios (
   id uuid primary key default gen_random_uuid(),
-  date date not null unique,
+  date date not null,
+  category_id uuid not null references categories(id),
   scenario_id uuid references scenarios(id)
 );
 
@@ -42,16 +55,27 @@ create table if not exists user_streaks (
 -- Helpful indexes
 create index if not exists idx_pitch_attempts_user_id on pitch_attempts(user_id);
 create index if not exists idx_pitch_attempts_user_date on pitch_attempts(user_id, date);
-create index if not exists idx_daily_scenarios_date on daily_scenarios(date);
+create index if not exists idx_scenarios_category_id on scenarios(category_id);
+create index if not exists idx_scenarios_category_tier on scenarios(category_id, tier);
+
+-- One scenario per (date, category) — see daily_scenarios comment above.
+create unique index if not exists daily_scenarios_date_category_key
+  on daily_scenarios(date, category_id);
 
 -- ============================================================
 -- ROW LEVEL SECURITY
 -- ============================================================
 
+alter table categories enable row level security;
 alter table scenarios enable row level security;
 alter table daily_scenarios enable row level security;
 alter table pitch_attempts enable row level security;
 alter table user_streaks enable row level security;
+
+-- categories: public read
+create policy "categories are publicly readable"
+  on categories for select
+  using (true);
 
 -- scenarios: public read
 create policy "scenarios are publicly readable"
@@ -90,10 +114,19 @@ create policy "users can update own streak"
   using (auth.uid() = user_id);
 
 -- ============================================================
--- SEED DATA — 10 scenarios across 4 tiers
+-- SEED DATA — 1 category, 10 scenarios across 4 tiers
 -- ============================================================
 
-insert into scenarios (title, context, prompt, tier) values
+insert into categories (slug, name, description, sort_order) values
+('elevator-pitch',
+ 'Elevator Pitch',
+ 'Fast, high-stakes pitch scenarios — networking events, cold intros, recruiters, and more.',
+ 0)
+on conflict (slug) do nothing;
+
+insert into scenarios (title, context, prompt, tier, category_id)
+select v.title, v.context, v.prompt, v.tier, c.id
+from (values
 ('The Stranger at a Networking Event',
  'You are at a tech networking event. Someone walks up and asks what you do.',
  'Hi! I don''t think we''ve met. What do you do?',
@@ -142,4 +175,6 @@ insert into scenarios (title, context, prompt, tier) values
 ('The Cold Voicemail',
  'You called a hiring manager directly. They did not pick up. Leave a voicemail.',
  'You have reached Sarah Chen, Engineering Manager at Anthropic. Leave a message.',
- 'expert');
+ 'expert')
+) as v(title, context, prompt, tier)
+cross join (select id from categories where slug = 'elevator-pitch') as c;

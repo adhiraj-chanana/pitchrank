@@ -2,6 +2,7 @@ import { createClient } from "@/lib/supabase/server";
 import { createServiceClient } from "@/lib/supabase/service";
 import { tierForStreak } from "@/lib/tiers";
 import { todayDateString } from "@/lib/date";
+import { DEFAULT_CATEGORY_SLUG, getCategoryBySlug } from "@/lib/categories";
 import type { Scenario, Tier } from "@/lib/types";
 
 export async function getStreakForUser(userId: string): Promise<number> {
@@ -15,33 +16,45 @@ export async function getStreakForUser(userId: string): Promise<number> {
   return data?.current_streak ?? 0;
 }
 
-async function pickRandomScenarioForTier(tier: Tier): Promise<Scenario> {
+async function pickRandomScenarioForTierAndCategory(
+  tier: Tier,
+  categoryId: string
+): Promise<Scenario> {
   const supabase = await createClient();
   const { data, error } = await supabase
     .from("scenarios")
     .select("*")
-    .eq("tier", tier);
+    .eq("tier", tier)
+    .eq("category_id", categoryId);
 
   if (error || !data || data.length === 0) {
-    throw new Error(`No scenarios found for tier "${tier}"`);
+    throw new Error(
+      `No scenarios found for tier "${tier}" in category "${categoryId}"`
+    );
   }
 
   return data[Math.floor(Math.random() * data.length)] as Scenario;
 }
 
-// The daily scenario is a single shared row keyed by date (per the fixed
-// schema), so it's decided by whichever user's request creates it first —
-// based on that user's tier at that moment.
+// The daily scenario is a single shared row keyed by (date, category), so
+// it's decided by whichever user's request creates it first for that
+// category — based on that user's tier at that moment. `categorySlug`
+// defaults to the only category that exists today; passing a different
+// slug is how a future category picker would use this same function
+// without any other change here.
 export async function getOrCreateTodayScenario(
-  userId: string
+  userId: string,
+  categorySlug: string = DEFAULT_CATEGORY_SLUG
 ): Promise<Scenario> {
   const date = todayDateString();
   const supabase = await createClient();
+  const category = await getCategoryBySlug(categorySlug);
 
   const { data: existing } = await supabase
     .from("daily_scenarios")
     .select("scenario_id, scenarios(*)")
     .eq("date", date)
+    .eq("category_id", category.id)
     .maybeSingle();
 
   if (existing?.scenarios) {
@@ -50,14 +63,17 @@ export async function getOrCreateTodayScenario(
 
   const streak = await getStreakForUser(userId);
   const tier = tierForStreak(streak);
-  const scenario = await pickRandomScenarioForTier(tier);
+  const scenario = await pickRandomScenarioForTierAndCategory(
+    tier,
+    category.id
+  );
 
   const service = createServiceClient();
   const { error: insertError } = await service
     .from("daily_scenarios")
     .upsert(
-      { date, scenario_id: scenario.id },
-      { onConflict: "date", ignoreDuplicates: true }
+      { date, category_id: category.id, scenario_id: scenario.id },
+      { onConflict: "date,category_id", ignoreDuplicates: true }
     );
 
   if (insertError) {
@@ -70,6 +86,7 @@ export async function getOrCreateTodayScenario(
     .from("daily_scenarios")
     .select("scenario_id, scenarios(*)")
     .eq("date", date)
+    .eq("category_id", category.id)
     .maybeSingle();
 
   return (final?.scenarios as unknown as Scenario) ?? scenario;

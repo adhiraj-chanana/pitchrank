@@ -19,6 +19,12 @@ export async function POST(request: Request) {
 
   const today = todayDateString();
 
+  // NOTE: this is a global one-pitch-per-day check, not per-category — with
+  // only one category today that distinction is invisible. When a second
+  // category is added, decide here whether the daily limit is global or
+  // per-category, and resolve it together with the streak question (does
+  // completing any one category advance the single global streak in
+  // user_streaks below, or does that need to become per-category too?).
   const { data: existing } = await supabase
     .from("pitch_attempts")
     .select("id")
