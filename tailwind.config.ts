@@ -9,6 +9,9 @@ const config: Config = {
   ],
   theme: {
     extend: {
+      fontFamily: {
+        fjalla: ["var(--font-fjalla)", "sans-serif"],
+      },
       colors: {
         background: "#fafafa",
         surface: "#ffffff",

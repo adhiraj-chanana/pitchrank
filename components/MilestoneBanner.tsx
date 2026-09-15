@@ -26,7 +26,7 @@ export function MilestoneBanner({
   }
 
   return (
-    <div className="bg-accent px-6 py-3 flex items-center justify-center gap-4">
+    <div className="bg-[#6600FF] px-6 py-3 flex items-center justify-center gap-4">
       <p className="text-white font-bold text-sm text-center">
         🎉 You unlocked {tierLabel} tier today!
       </p>

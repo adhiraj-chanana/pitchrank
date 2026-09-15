@@ -3,6 +3,8 @@ import { createClient } from "@/lib/supabase/server";
 import { Logo } from "@/components/Logo";
 import { LogoutButton } from "@/components/LogoutButton";
 import { HistoryChart } from "./HistoryChart";
+import { HoverScale } from "@/components/motion/Hover";
+import { PageBackground } from "@/components/PageBackground";
 import type { PitchAttempt } from "@/lib/types";
 
 function scoreBadgeColor(score: number): string {
@@ -36,32 +38,34 @@ export default async function HistoryPage() {
     .map((a) => ({ date: a.date, score: a.score?.overall ?? 0 }));
 
   return (
-    <div className="min-h-screen">
-      <header className="flex items-center justify-between px-6 py-6 sm:px-10 max-w-4xl mx-auto w-full">
-        <Logo href="/dashboard" />
-        <div className="flex items-center gap-6">
-          <a
-            href="/dashboard"
-            className="text-sm font-bold text-muted hover:text-foreground transition-colors"
-          >
-            Dashboard
-          </a>
-          <a
-            href="/feedback"
-            className="text-sm font-bold text-muted hover:text-foreground transition-colors"
-          >
-            Feedback
-          </a>
-          <LogoutButton />
+    <PageBackground>
+      <header className="w-full border-b border-white/10">
+        <div className="flex items-center justify-between px-6 py-6 sm:px-10 max-w-4xl mx-auto w-full">
+          <Logo href="/dashboard" theme="light" />
+          <div className="flex items-center gap-6">
+            <a
+              href="/dashboard"
+              className="text-sm font-bold text-white/60 hover:text-white transition-colors"
+            >
+              Dashboard
+            </a>
+            <a
+              href="/feedback"
+              className="text-sm font-bold text-white/60 hover:text-white transition-colors"
+            >
+              Feedback
+            </a>
+            <LogoutButton className="text-sm font-bold text-white/60 hover:text-white transition-colors" />
+          </div>
         </div>
       </header>
 
-      <main className="max-w-4xl mx-auto px-6 pb-20">
-        <h1 className="text-2xl font-black text-foreground mb-6">History</h1>
+      <main className="max-w-4xl mx-auto px-6 py-8 pb-20">
+        <h1 className="text-2xl font-black text-white mb-6">History</h1>
 
         {typedAttempts.length === 0 ? (
-          <div className="bg-surface border-2 border-border rounded-2xl shadow-lg p-10 text-center">
-            <p className="text-muted font-medium">
+          <div className="bg-white/5 border-2 border-white/10 rounded-2xl shadow-lg p-10 text-center">
+            <p className="text-white/60 font-medium">
               No attempts yet. Record your first pitch to start your history.
             </p>
           </div>
@@ -71,31 +75,30 @@ export default async function HistoryPage() {
 
             <div className="flex flex-col gap-3 mt-8">
               {typedAttempts.map((attempt) => (
-                <div
-                  key={attempt.id}
-                  className="flex items-center justify-between bg-surface border-2 border-border rounded-2xl shadow-lg px-5 py-4"
-                >
-                  <div>
-                    <div className="text-foreground font-bold">
-                      {attempt.scenarios?.title ?? "Scenario"}
+                <HoverScale key={attempt.id} scale={1.02} y={-2}>
+                  <div className="flex items-center justify-between bg-white/5 border-2 border-white/10 rounded-2xl shadow-lg px-5 py-4">
+                    <div>
+                      <div className="text-white font-bold">
+                        {attempt.scenarios?.title ?? "Scenario"}
+                      </div>
+                      <div className="text-xs font-medium text-white/50 mt-0.5">
+                        {attempt.date}
+                      </div>
                     </div>
-                    <div className="text-xs font-medium text-muted mt-0.5">
-                      {attempt.date}
+                    <div
+                      className={`w-12 h-12 shrink-0 flex items-center justify-center rounded-full text-white font-black ${scoreBadgeColor(
+                        attempt.score?.overall ?? 0
+                      )}`}
+                    >
+                      {attempt.score?.overall ?? "—"}
                     </div>
                   </div>
-                  <div
-                    className={`w-12 h-12 shrink-0 flex items-center justify-center rounded-full text-white font-black ${scoreBadgeColor(
-                      attempt.score?.overall ?? 0
-                    )}`}
-                  >
-                    {attempt.score?.overall ?? "—"}
-                  </div>
-                </div>
+                </HoverScale>
               ))}
             </div>
           </>
         )}
       </main>
-    </div>
+    </PageBackground>
   );
 }

@@ -17,9 +17,9 @@ const LINE_PAUSE_MS = 600;
 const REACT_SHAKE_MS = 600;
 
 const LINE_STYLES = [
-  "text-sm text-muted italic font-medium",
-  "text-lg text-foreground font-bold",
-  "text-2xl font-black text-foreground",
+  "text-sm text-white/60 italic font-medium",
+  "text-lg text-white font-bold",
+  "text-2xl font-black text-white",
 ];
 
 const HOVER_QUOTES = [
@@ -144,7 +144,7 @@ export function BossReaction({
 
   return (
     <div
-      className={`bg-surface border-[3px] ${config.borderColor} ${config.glow} shadow-lg rounded-3xl p-8 mb-6 flex flex-col items-center gap-6`}
+      className={`bg-white/5 border-[3px] ${config.borderColor} ${config.glow} shadow-lg rounded-3xl p-8 mb-6 flex flex-col items-center gap-6`}
     >
       <div
         className="relative mx-auto w-full"

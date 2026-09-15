@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Image from "next/image";
+import { motion } from "framer-motion";
 import type { Milestone } from "@/lib/types";
 
 const MILESTONE_CONTENT: Record<
@@ -29,7 +30,7 @@ const MILESTONE_CONTENT: Record<
   14: {
     emoji: "⚡",
     title: "14 Day Streak!",
-    titleColor: "text-indigo-500",
+    titleColor: "text-[#6600FF]",
     subtitle: "Advanced tier unlocked",
     description:
       "Panel interviews. Offer negotiations. The real stuff starts now.",
@@ -49,11 +50,11 @@ const MILESTONE_CONTENT: Record<
 };
 
 const CONFETTI_COLORS = [
-  "#4f46e5",
+  "#6600FF",
+  "#715DF2",
   "#f59e0b",
   "#22c55e",
   "#ef4444",
-  "#eab308",
   "#ec4899",
 ];
 const CONFETTI_COUNT = 20;
@@ -137,12 +138,15 @@ export function StreakCelebration({
           </div>
         </div>
 
-        <button
+        <motion.button
           onClick={onDismiss}
-          className="mt-8 w-full bg-accent hover:bg-accent-hover text-white font-bold py-4 rounded-full shadow-lg transition-all hover:scale-105"
+          whileHover={{ scale: 1.03 }}
+          whileTap={{ scale: 0.98 }}
+          transition={{ type: "spring", stiffness: 400, damping: 20 }}
+          className="mt-8 w-full bg-[#6600FF] hover:bg-[#5500d6] text-white font-bold py-4 rounded-full shadow-lg transition-colors"
         >
           See my results
-        </button>
+        </motion.button>
       </div>
     </div>
   );
