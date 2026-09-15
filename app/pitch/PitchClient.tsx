@@ -18,7 +18,10 @@ import type {
 
 const RECORDING_SECONDS = 60;
 const POLL_INTERVAL_MS = 2000;
-const POLL_TIMEOUT_MS = 30000;
+// universal-3-5-pro (higher-accuracy, slower tier) can take well over 30s to
+// process a full 60s recording — that ceiling was only safe for the short
+// test clips used early on, not real pitch-length audio.
+const POLL_TIMEOUT_MS = 120000;
 const WAVEFORM_BAR_COUNT = 40;
 
 type MicStatus = "requesting" | "ready" | "denied" | "unsupported";

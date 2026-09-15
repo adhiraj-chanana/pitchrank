@@ -55,6 +55,12 @@ export default async function HistoryPage() {
             >
               Feedback
             </a>
+            <a
+              href="/about"
+              className="text-sm font-bold text-white/60 hover:text-white transition-colors"
+            >
+              About
+            </a>
             <LogoutButton className="text-sm font-bold text-white/60 hover:text-white transition-colors" />
           </div>
         </div>

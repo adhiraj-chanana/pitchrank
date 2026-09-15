@@ -96,6 +96,12 @@ export default async function DashboardPage() {
               >
                 Feedback
               </Link>
+              <Link
+                href="/about"
+                className="text-sm font-bold text-white/60 hover:text-white transition-colors"
+              >
+                About
+              </Link>
               <LogoutButton className="text-sm font-bold text-white/60 hover:text-white transition-colors" />
             </div>
           </div>

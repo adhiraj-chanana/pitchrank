@@ -26,6 +26,13 @@ const steps = [
 
 const traits = ["Brutally honest", "Specific feedback", "Reacts to YOUR words"];
 
+const tierMilestones = [
+  { day: "Day 1", label: "Beginner" },
+  { day: "Day 7", label: "Intermediate" },
+  { day: "Day 14", label: "Advanced" },
+  { day: "Day 30", label: "Expert" },
+];
+
 const testimonials = [
   {
     quote:
@@ -71,7 +78,7 @@ export default function Home() {
         <section className="relative min-h-screen flex items-center px-6 sm:px-10 overflow-hidden">
           <div className="relative z-10 w-full max-w-6xl mx-auto grid sm:grid-cols-2 gap-16 items-center py-16">
             <div className="text-center sm:text-left animate-fade-in-up">
-              <h1 className="font-fjalla text-4xl sm:text-6xl tracking-tight text-balance">
+              <h1 className="font-black text-4xl sm:text-6xl tracking-tight text-balance">
                 <span className="text-white">Stop winging it.</span>
                 <br />
                 <span className="text-[#715DF2]">
@@ -126,9 +133,29 @@ export default function Home() {
           </div>
         </section>
 
+        {/* PAIN POINT */}
+        <section className="w-full py-24 px-6">
+          <div className="max-w-3xl mx-auto text-center">
+            <h2 className="font-black text-3xl sm:text-5xl text-white text-balance">
+              Have you ever been in the room and just&hellip; blanked?
+            </h2>
+            <p className="mt-6 text-lg sm:text-xl text-white/70 font-medium leading-relaxed text-balance">
+              The recruiter asks what you do. The investor gives you sixty
+              seconds. The stranger at the networking event is already
+              glancing past you. And you open with &ldquo;so, um, I&apos;m a
+              student at...&rdquo; — and just like that, the moment&apos;s
+              gone.
+            </p>
+            <p className="mt-5 text-lg sm:text-xl text-[#715DF2] font-bold text-balance">
+              You don&apos;t get a second first impression. So get the first
+              one right.
+            </p>
+          </div>
+        </section>
+
         {/* HOW IT WORKS */}
         <section id="how-it-works" className="w-full py-24 px-6">
-          <h2 className="text-center font-fjalla text-6xl sm:text-7xl text-white">
+          <h2 className="text-center font-black text-6xl sm:text-7xl text-white">
             How PitchRank works
           </h2>
 
@@ -238,6 +265,42 @@ export default function Home() {
                 </p>
               </div>
             </div>
+          </div>
+        </section>
+
+        {/* STREAK */}
+        <section className="w-full py-24 px-6">
+          <div className="max-w-4xl mx-auto text-center">
+            <span className="text-sm font-bold text-[#715DF2] uppercase tracking-wide">
+              Built to keep you coming back
+            </span>
+            <h2 className="mt-3 font-black text-4xl sm:text-6xl text-white text-balance">
+              Build a streak. Become someone who doesn&apos;t choke.
+            </h2>
+            <p className="mt-5 text-lg text-white/70 font-medium max-w-xl mx-auto text-balance">
+              One pitch a day. That&apos;s it. Miss a day and the streak
+              resets — so does your excuse for still winging it.
+            </p>
+
+            <div className="mt-14 grid grid-cols-2 sm:grid-cols-4 gap-4 sm:gap-6">
+              {tierMilestones.map((t) => (
+                <HoverScale key={t.label} scale={1.05} y={-4}>
+                  <div className="rounded-2xl border-2 border-white/15 bg-white/5 px-4 py-6">
+                    <div className="text-2xl sm:text-3xl font-black text-[#6600FF]">
+                      {t.day}
+                    </div>
+                    <div className="mt-1 text-sm font-bold text-white/70 uppercase tracking-wide">
+                      {t.label}
+                    </div>
+                  </div>
+                </HoverScale>
+              ))}
+            </div>
+
+            <p className="mt-10 text-white/50 font-medium max-w-lg mx-auto text-balance">
+              Every tier unlocks harder scenarios. By Expert, you&apos;re not
+              practicing anymore — you&apos;re just good.
+            </p>
           </div>
         </section>
 

@@ -7,6 +7,7 @@ const PROTECTED_PREFIXES = [
   "/results",
   "/history",
   "/feedback",
+  "/about",
 ];
 
 export async function updateSession(request: NextRequest) {
