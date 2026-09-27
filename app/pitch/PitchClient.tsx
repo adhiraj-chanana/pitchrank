@@ -179,7 +179,7 @@ export function PitchClient({ scenario }: { scenario: Scenario }) {
     const ctx = canvas?.getContext("2d");
     if (canvas && ctx) {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
-      ctx.fillStyle = "#E8553A";
+      ctx.fillStyle = "#9C2B3C";
       const barWidth = canvas.width / WAVEFORM_BAR_COUNT;
       for (let i = 0; i < WAVEFORM_BAR_COUNT; i++) {
         ctx.fillRect(i * barWidth, canvas.height / 2 - 2, barWidth - 2, 4);

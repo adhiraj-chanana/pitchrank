@@ -33,7 +33,7 @@ export function HistoryChart({ data }: { data: ChartPoint[] }) {
           <Tooltip
             contentStyle={{
               background: "#211C16",
-              border: "2px solid #E8553A",
+              border: "2px solid #9C2B3C",
               borderRadius: 16,
               color: "#F4EEE3",
               fontWeight: 700,
@@ -42,9 +42,9 @@ export function HistoryChart({ data }: { data: ChartPoint[] }) {
           <Line
             type="monotone"
             dataKey="score"
-            stroke="#E8553A"
+            stroke="#9C2B3C"
             strokeWidth={3}
-            dot={{ fill: "#E8553A", r: 4 }}
+            dot={{ fill: "#9C2B3C", r: 4 }}
           />
         </LineChart>
       </ResponsiveContainer>

@@ -19,7 +19,7 @@ export function PageBackground({
             so these mirror the background/accent/highlight tokens by hand. */}
         <GradientWaves
           horizonColor="#16130F"
-          waveColor="#E8553A"
+          waveColor="#9C2B3C"
           crestColor="#E3B23C"
           speed={0.4}
           amplitude={2.5}

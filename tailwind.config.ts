@@ -19,9 +19,9 @@ const config: Config = {
         foreground: "#F4EEE3",
         muted: "#A89F92",
         accent: {
-          DEFAULT: "#E8553A",
-          hover: "#CF4830",
-          soft: "#F7DED7",
+          DEFAULT: "#9C2B3C",
+          hover: "#7D2130",
+          soft: "#F5DCE0",
         },
         highlight: {
           DEFAULT: "#E3B23C",
@@ -30,7 +30,7 @@ const config: Config = {
         },
         success: "#7FB069",
         warning: "#E3B23C",
-        danger: "#E8553A",
+        danger: "#9C2B3C",
       },
       keyframes: {
         "pulse-ring": {

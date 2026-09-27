@@ -50,11 +50,11 @@ const MILESTONE_CONTENT: Record<
 };
 
 const CONFETTI_COLORS = [
-  "#E8553A",
+  "#9C2B3C",
   "#E3B23C",
   "#7FB069",
   "#F4EEE3",
-  "#CF4830",
+  "#7D2130",
   "#C99A2E",
 ];
 const CONFETTI_COUNT = 20;
