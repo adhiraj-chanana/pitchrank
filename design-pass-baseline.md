@@ -92,3 +92,44 @@ nothing about how a score or streak is computed changes.
   countdown) — no findings here.
 - The dashboard, now on the B+C merged layout, and the accent/typography
   swap are excluded since they were just implemented in this same session.
+
+## Functional UX / day-2 retention risks
+
+Requested separately from the visual findings above: things that could
+stop a first-time user from coming back tomorrow, not just things that
+look generic.
+
+1. **[manual] The daily boundary is UTC, not the user's local time, and
+   this is never surfaced anywhere.** `todayDateString()`
+   (`lib/date.ts:1-3`) is `new Date().toISOString().slice(0, 10)` — the
+   day rolls over at UTC midnight. For a US user that's 5-8pm local, not
+   midnight. Someone who pitches at 9pm Pacific could find the "day" has
+   already advanced server-side — their streak silently breaks, or what
+   they think is today's attempt actually lands on a different date than
+   they expect — with no message anywhere explaining why. Silent,
+   unexplained streak breaks are one of the most common reasons habit
+   apps lose people right after day 1.
+
+2. **[manual] No app-wide error boundary — a first-time failure shows
+   Next.js's bare default error page, not the product.** There's no
+   `error.tsx` anywhere in `app/`. `getOrCreateTodayScenario` (called on
+   every dashboard and pitch-page load) throws if no scenario row exists
+   for a tier/category (`lib/today-scenario.ts:30-34`) or if the insert
+   fails. A brand-new user's very first dashboard load has no fallback
+   if that throws — worst-case first impression, and nothing tells them
+   what happened or gives them a way back in.
+
+3. **[manual] Resubmitting a completed day fails silently.** If
+   `/api/submit-pitch` returns 409 (already submitted today — double
+   click, duplicate tab, or coming back to a stale `/pitch` tab),
+   `PitchClient.tsx:362-365` just redirects to `/dashboard` with no
+   message. It looks like the pitch vanished rather than "you already
+   did this today," right after someone just finished a 60-second
+   recording.
+
+4. **[manual] The core mechanic (one pitch a day, streak resets on a
+   missed day) is explained on the marketing page but never inside the
+   signed-in app.** Landing-page copy states the rule, but nothing on
+   `/dashboard` or `/pitch` does, and "come back tomorrow" never says
+   when tomorrow starts. A new user has to infer the rules from the
+   marketing copy they read once, days before it matters.
