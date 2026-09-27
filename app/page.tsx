@@ -135,7 +135,7 @@ export default function Home() {
 
         {/* PAIN POINT */}
         <section className="w-full py-24 px-6">
-          <div className="max-w-3xl mx-auto text-center">
+          <div className="max-w-3xl mx-auto text-center sm:text-left">
             <h2 className="font-display font-bold text-3xl sm:text-5xl text-foreground text-balance">
               Have you ever been in the room and just&hellip; blanked?
             </h2>
@@ -212,16 +212,16 @@ export default function Home() {
                 he&apos;ll tell you. Bore him and he&apos;ll tell you that
                 too.
               </p>
-              <div className="mt-6 flex flex-wrap items-center justify-center sm:justify-start gap-3">
-                {traits.map((trait) => (
-                  <span
-                    key={trait}
-                    className="text-sm font-semibold text-foreground border-2 border-border rounded-full px-4 py-1.5"
-                  >
+              <p className="mt-6 text-sm font-semibold text-foreground text-center sm:text-left">
+                {traits.map((trait, i) => (
+                  <span key={trait}>
                     {trait}
+                    {i < traits.length - 1 && (
+                      <span className="text-muted mx-2">&middot;</span>
+                    )}
                   </span>
                 ))}
-              </div>
+              </p>
             </div>
           </div>
         </section>
@@ -282,18 +282,16 @@ export default function Home() {
               resets — so does your excuse for still winging it.
             </p>
 
-            <div className="mt-14 grid grid-cols-2 sm:grid-cols-4 gap-4 sm:gap-6">
+            <div className="mt-14 grid grid-cols-2 sm:grid-cols-4 divide-x-0 sm:divide-x-2 divide-border border-2 border-border rounded-2xl overflow-hidden">
               {tierMilestones.map((t) => (
-                <HoverScale key={t.label} scale={1.05} y={-4}>
-                  <div className="rounded-2xl border-2 border-border bg-surface px-4 py-6">
-                    <div className="text-2xl sm:text-3xl font-black text-accent">
-                      {t.day}
-                    </div>
-                    <div className="mt-1 text-sm font-bold text-muted uppercase tracking-wide">
-                      {t.label}
-                    </div>
+                <div key={t.label} className="px-4 py-6 border-b-2 sm:border-b-0 border-border last:border-b-0">
+                  <div className="text-2xl sm:text-3xl font-black text-accent">
+                    {t.day}
                   </div>
-                </HoverScale>
+                  <div className="mt-1 text-sm font-bold text-muted uppercase tracking-wide">
+                    {t.label}
+                  </div>
+                </div>
               ))}
             </div>
 
