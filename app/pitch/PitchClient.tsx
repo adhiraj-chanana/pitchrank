@@ -35,7 +35,8 @@ type Status =
   | "submitting"
   | "upload-error"
   | "transcribe-error"
-  | "recorder-error";
+  | "recorder-error"
+  | "already-submitted";
 
 const MIME_CANDIDATES = [
   "audio/mp4", // iOS Safari
@@ -360,7 +361,7 @@ export function PitchClient({ scenario }: { scenario: Scenario }) {
       });
 
       if (res.status === 409) {
-        router.push("/dashboard");
+        setStatus("already-submitted");
         return;
       }
 
@@ -521,6 +522,33 @@ export function PitchClient({ scenario }: { scenario: Scenario }) {
                   className="bg-accent hover:bg-accent-hover text-foreground font-bold px-6 py-3 rounded-full shadow-lg transition-colors"
                 >
                   Try again
+                </motion.button>
+              </div>
+            )}
+
+            {status === "already-submitted" && (
+              <div className="w-full max-w-sm flex flex-col items-center gap-4 text-center">
+                <Image
+                  src="/boss/boss-dismissive.png"
+                  alt="Marcus"
+                  width={48}
+                  height={48}
+                  className="w-12 h-12 rounded-full object-cover border-2 border-border"
+                />
+                <p className="text-foreground font-bold">
+                  You already pitched today.
+                </p>
+                <p className="text-muted font-medium text-sm">
+                  One pitch a day. Come back tomorrow for a new scenario.
+                </p>
+                <motion.button
+                  onClick={() => router.push("/dashboard")}
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.97 }}
+                  transition={{ type: "spring", stiffness: 400, damping: 20 }}
+                  className="bg-accent hover:bg-accent-hover text-foreground font-bold px-6 py-3 rounded-full shadow-lg transition-colors"
+                >
+                  Back to Dashboard
                 </motion.button>
               </div>
             )}
