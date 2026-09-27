@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import Image from "next/image";
 import { motion } from "framer-motion";
 import { createClient } from "@/lib/supabase/client";
 import { Logo } from "@/components/Logo";
@@ -51,9 +52,18 @@ export default function LoginPage() {
         transition={{ duration: 0.4, ease: "easeOut" }}
         className="w-full max-w-sm bg-surface border-[3px] border-accent rounded-3xl shadow-lg p-8"
       >
-        <h1 className="font-display text-2xl font-bold text-foreground mb-1">Welcome back</h1>
+        <div className="flex items-center gap-3 mb-1">
+          <Image
+            src="/boss/boss-interested.png"
+            alt="Marcus"
+            width={40}
+            height={40}
+            className="w-10 h-10 rounded-full object-cover border-2 border-border shrink-0"
+          />
+          <h1 className="font-display text-2xl font-bold text-foreground">Welcome back</h1>
+        </div>
         <p className="text-sm text-muted font-medium mb-6">
-          Log in to keep your streak alive.
+          Log in to keep your streak alive. Marcus is waiting.
         </p>
 
         <form onSubmit={handleSubmit} className="flex flex-col gap-4">
