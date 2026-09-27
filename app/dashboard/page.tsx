@@ -171,14 +171,21 @@ export default async function DashboardPage() {
           </div>
 
           {todayAttempt ? (
-            <div className="mt-8 flex items-center justify-between border-t border-b border-border py-4">
-              <div>
-                <div className="text-xs font-bold text-muted">Today&apos;s score</div>
-                <div className="text-2xl font-black text-foreground">
-                  {(todayAttempt.score as PitchScore | null)?.overall ?? "—"}
+            <div className="mt-8 border-t border-b border-border py-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <div className="text-xs font-bold text-muted">Today&apos;s score</div>
+                  <div className="text-2xl font-black text-foreground">
+                    {(todayAttempt.score as PitchScore | null)?.overall ?? "—"}
+                  </div>
                 </div>
+                <span className="text-xs font-bold text-muted">Come back tomorrow</span>
               </div>
-              <span className="text-xs font-bold text-muted">Come back tomorrow</span>
+              <p className="mt-3 text-xs text-muted font-medium">
+                The day resets on a fixed schedule, not necessarily your
+                local midnight, so a late-night pitch may already count as
+                tomorrow&apos;s.
+              </p>
             </div>
           ) : (
             <Link
