@@ -9,7 +9,7 @@ export function Navbar() {
   const [open, setOpen] = useState(false);
 
   return (
-    <header className="sticky top-0 z-50 backdrop-blur-sm bg-background/60 border-b border-border">
+    <header className="sticky top-0 z-50 backdrop-blur-sm bg-background/60 border-b border-border pt-safe">
       <div className="flex items-center justify-between px-6 py-4 sm:px-10 max-w-6xl mx-auto w-full">
         <Logo theme="light" />
 
@@ -36,7 +36,7 @@ export function Navbar() {
           aria-label={open ? "Close menu" : "Open menu"}
           aria-expanded={open}
           aria-controls="mobile-nav-menu"
-          className="sm:hidden relative w-10 h-10 flex items-center justify-center rounded-full hover:bg-surface transition-colors"
+          className="sm:hidden relative w-11 h-11 flex items-center justify-center rounded-full hover:bg-surface transition-colors"
         >
           <motion.span
             className="absolute h-0.5 w-5 bg-foreground rounded-full"

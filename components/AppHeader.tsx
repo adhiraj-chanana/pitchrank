@@ -42,7 +42,7 @@ export function AppHeader({ links }: { links: NavItem[] }) {
           aria-label={open ? "Close menu" : "Open menu"}
           aria-expanded={open}
           aria-controls="app-nav-menu"
-          className="sm:hidden relative w-10 h-10 flex items-center justify-center rounded-full hover:bg-surface transition-colors"
+          className="sm:hidden relative w-11 h-11 flex items-center justify-center rounded-full hover:bg-surface transition-colors"
         >
           <motion.span
             className="absolute h-0.5 w-5 bg-foreground rounded-full"

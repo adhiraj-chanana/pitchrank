@@ -98,7 +98,13 @@ export function StreakCelebration({
   const content = MILESTONE_CONTENT[milestone];
 
   return (
-    <div className="fixed inset-0 z-[100] bg-background/90 flex items-center justify-center p-6 overflow-hidden">
+    <div
+      className="fixed inset-0 z-[100] bg-background/90 flex items-center justify-center px-6 overflow-hidden"
+      style={{
+        paddingTop: "max(1.5rem, env(safe-area-inset-top))",
+        paddingBottom: "max(1.5rem, env(safe-area-inset-bottom))",
+      }}
+    >
       {confetti.map((piece, i) => (
         <div
           key={i}

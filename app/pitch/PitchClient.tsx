@@ -444,7 +444,7 @@ export function PitchClient({
             <button
               onClick={() => setShowIntro(false)}
               aria-label="Dismiss"
-              className="shrink-0 text-muted hover:text-foreground font-bold text-sm"
+              className="shrink-0 -m-2.5 px-3.5 py-2.5 text-muted hover:text-foreground font-bold text-sm"
             >
               Got it
             </button>

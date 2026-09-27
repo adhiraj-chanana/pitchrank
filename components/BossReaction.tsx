@@ -119,15 +119,17 @@ export function BossReaction({
   }
 
   // Hover is a post-verdict flourish — it shouldn't cut into the typewriter
-  // sequence, so it's a no-op until the dialogue has finished.
-  function handleMouseEnter() {
-    if (!dialogueDone) return;
+  // sequence, so it's a no-op until the dialogue has finished. Gated to
+  // pointerType "mouse" so a tap on touch devices doesn't trigger it and
+  // get stuck on (no real pointerleave follows a tap).
+  function handlePointerEnter(e: React.PointerEvent) {
+    if (!dialogueDone || e.pointerType !== "mouse") return;
     setHoverQuote(HOVER_QUOTES[Math.floor(Math.random() * HOVER_QUOTES.length)]);
     setIsHovered(true);
   }
 
-  function handleMouseLeave() {
-    if (!dialogueDone) return;
+  function handlePointerLeave(e: React.PointerEvent) {
+    if (!dialogueDone || e.pointerType !== "mouse") return;
     setIsHovered(false);
   }
 
@@ -176,8 +178,8 @@ export function BossReaction({
           alt={imageAlt}
           width={300}
           height={300}
-          onMouseEnter={handleMouseEnter}
-          onMouseLeave={handleMouseLeave}
+          onPointerEnter={handlePointerEnter}
+          onPointerLeave={handlePointerLeave}
           className={`relative z-10 w-full h-auto rounded-2xl ${imageAnimClass}`}
           style={BOSS_IMAGE_MASK}
           priority

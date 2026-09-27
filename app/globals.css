@@ -4,11 +4,16 @@
 
 html {
   color-scheme: dark;
+  /* Suppresses the gray tap-flash rectangle touch browsers draw on tap;
+     real tap feedback is handled per-element (framer-motion whileTap, etc). */
+  -webkit-tap-highlight-color: transparent;
 }
 
 body {
   color: #F4EEE3;
   background: #16130F;
+  /* Removes the ~300ms tap delay and double-tap-to-zoom on touch browsers. */
+  touch-action: manipulation;
 }
 
 ::selection {
@@ -125,5 +130,13 @@ body {
 
   .animate-glow-pulse {
     animation: glowPulse 2s ease-in-out infinite;
+  }
+
+  .pt-safe {
+    padding-top: env(safe-area-inset-top);
+  }
+
+  .pb-safe {
+    padding-bottom: env(safe-area-inset-bottom);
   }
 }

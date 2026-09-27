@@ -33,7 +33,7 @@ export function MilestoneBanner({
       <button
         onClick={handleDismiss}
         aria-label="Dismiss"
-        className="shrink-0 text-muted hover:text-foreground font-black text-lg leading-none"
+        className="shrink-0 -m-3.5 p-3.5 text-muted hover:text-foreground font-black text-lg leading-none"
       >
         ×
       </button>
