@@ -158,7 +158,7 @@ export function PitchClient({ scenario }: { scenario: Scenario }) {
       for (let i = 0; i < WAVEFORM_BAR_COUNT; i++) {
         const value = dataArray[i * step] ?? 0;
         const barHeight = Math.max(4, (value / 255) * height);
-        ctx.fillStyle = "#ffffff";
+        ctx.fillStyle = "#F4EEE3";
         ctx.fillRect(i * barWidth, height - barHeight, barWidth - 2, barHeight);
       }
 
@@ -179,7 +179,7 @@ export function PitchClient({ scenario }: { scenario: Scenario }) {
     const ctx = canvas?.getContext("2d");
     if (canvas && ctx) {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
-      ctx.fillStyle = "#6600FF";
+      ctx.fillStyle = "#E8553A";
       const barWidth = canvas.width / WAVEFORM_BAR_COUNT;
       for (let i = 0; i < WAVEFORM_BAR_COUNT; i++) {
         ctx.fillRect(i * barWidth, canvas.height / 2 - 2, barWidth - 2, 4);
@@ -395,7 +395,7 @@ export function PitchClient({ scenario }: { scenario: Scenario }) {
   const seconds = secondsLeft % 60;
 
   return (
-    <PageBackground contentClassName="min-h-screen text-white flex flex-col px-6 py-10">
+    <PageBackground contentClassName="min-h-screen text-foreground flex flex-col px-6 py-10">
       {milestone && (
         <StreakCelebration
           milestone={milestone}
@@ -403,27 +403,27 @@ export function PitchClient({ scenario }: { scenario: Scenario }) {
         />
       )}
       <div className="max-w-2xl mx-auto w-full flex-1 flex flex-col">
-        <div className="bg-white/5 border border-white/10 rounded-2xl shadow-lg p-6 mb-10">
+        <div className="bg-surface border border-border rounded-2xl shadow-lg p-6 mb-10">
           <div className="flex items-center justify-between mb-3">
-            <span className="text-xs uppercase tracking-widest text-white/50 font-black">
+            <span className="text-xs uppercase tracking-widest text-muted font-black">
               You&apos;re being judged on:
             </span>
-            <span className="text-xs uppercase tracking-wide text-white/70 font-bold border border-white/20 rounded-full px-3 py-1">
+            <span className="text-xs uppercase tracking-wide text-muted font-bold border border-border rounded-full px-3 py-1">
               {scenario.tier}
             </span>
           </div>
-          <h1 className="text-2xl font-black text-white">{scenario.title}</h1>
-          <p className="text-white/60 font-medium mt-2 text-sm leading-relaxed">
+          <h1 className="font-display text-2xl font-bold text-foreground">{scenario.title}</h1>
+          <p className="text-muted font-medium mt-2 text-sm leading-relaxed">
             {scenario.context}
           </p>
-          <p className="text-white/80 italic font-medium mt-4 text-lg">
+          <p className="text-muted italic font-medium mt-4 text-lg">
             &ldquo;{scenario.prompt}&rdquo;
           </p>
         </div>
 
         {micStatus === "requesting" && (
           <div className="flex-1 flex flex-col items-center justify-center gap-3 text-center">
-            <p className="text-white/60 font-medium">
+            <p className="text-muted font-medium">
               Requesting microphone access...
             </p>
           </div>
@@ -431,13 +431,13 @@ export function PitchClient({ scenario }: { scenario: Scenario }) {
 
         {micStatus === "denied" && (
           <div className="flex-1 flex flex-col items-center justify-center gap-4 text-center max-w-sm mx-auto">
-            <p className="text-white font-black text-lg">Microphone access needed</p>
-            <p className="text-white/60 font-medium text-sm">
+            <p className="text-foreground font-black text-lg">Microphone access needed</p>
+            <p className="text-muted font-medium text-sm">
               PitchRank needs your microphone to record your pitch. Please allow
               microphone permissions in your browser&apos;s site settings, then
               try again.
             </p>
-            <p className="text-white/60 font-medium text-sm">
+            <p className="text-muted font-medium text-sm">
               On iPhone, go to Settings → Safari → Microphone and make sure
               it&apos;s enabled.
             </p>
@@ -446,7 +446,7 @@ export function PitchClient({ scenario }: { scenario: Scenario }) {
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.97 }}
               transition={{ type: "spring", stiffness: 400, damping: 20 }}
-              className="bg-[#6600FF] hover:bg-[#5500d6] text-white font-bold px-6 py-3 rounded-full shadow-lg transition-colors"
+              className="bg-accent hover:bg-accent-hover text-foreground font-bold px-6 py-3 rounded-full shadow-lg transition-colors"
             >
               Try again
             </motion.button>
@@ -455,8 +455,8 @@ export function PitchClient({ scenario }: { scenario: Scenario }) {
 
         {micStatus === "unsupported" && (
           <div className="flex-1 flex flex-col items-center justify-center gap-3 text-center max-w-sm mx-auto">
-            <p className="text-white font-black text-lg">Browser not supported</p>
-            <p className="text-white/60 font-medium text-sm">
+            <p className="text-foreground font-black text-lg">Browser not supported</p>
+            <p className="text-muted font-medium text-sm">
               Your browser doesn&apos;t support audio recording. Try the latest
               version of Chrome, Safari, or Firefox.
             </p>
@@ -466,20 +466,20 @@ export function PitchClient({ scenario }: { scenario: Scenario }) {
         {micStatus === "ready" && (
           <div className="flex-1 flex flex-col items-center justify-center gap-8">
             {status === "recording" && (
-              <span className="bg-danger text-white text-xs font-black uppercase tracking-widest px-4 py-1.5 rounded-full animate-pulse">
+              <span className="bg-danger text-foreground text-xs font-black uppercase tracking-widest px-4 py-1.5 rounded-full animate-pulse">
                 ● Recording
               </span>
             )}
 
             {status === "recording" && (
-              <div className="text-8xl font-black text-white tabular-nums">
+              <div className="text-8xl font-black text-foreground tabular-nums">
                 {minutes}:{seconds.toString().padStart(2, "0")}
               </div>
             )}
 
             {status === "recording" && (
               <div className="relative flex items-center justify-center w-72 h-72">
-                <div className="absolute inset-0 rounded-full bg-[#6600FF]/20 animate-pulse pointer-events-none" />
+                <div className="absolute inset-0 rounded-full bg-accent/20 animate-pulse pointer-events-none" />
                 <canvas
                   ref={canvasRef}
                   width={600}
@@ -499,11 +499,11 @@ export function PitchClient({ scenario }: { scenario: Scenario }) {
                 <motion.span
                   variants={{ rest: { scale: 1 }, hover: { scale: 1.05 } }}
                   transition={{ type: "spring", stiffness: 400, damping: 20 }}
-                  className="w-40 h-40 rounded-full bg-white/5 border-4 border-white/15 flex items-center justify-center shadow-lg group-hover:border-[#6600FF] transition-colors"
+                  className="w-40 h-40 rounded-full bg-surface border-4 border-border flex items-center justify-center shadow-lg group-hover:border-accent transition-colors"
                 >
-                  <MicIcon className="w-24 h-24 text-[#6600FF]" />
+                  <MicIcon className="w-24 h-24 text-accent" />
                 </motion.span>
-                <span className="text-white font-bold text-lg">Tap to start</span>
+                <span className="text-foreground font-bold text-lg">Tap to start</span>
               </motion.button>
             )}
 
@@ -518,7 +518,7 @@ export function PitchClient({ scenario }: { scenario: Scenario }) {
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.97 }}
                   transition={{ type: "spring", stiffness: 400, damping: 20 }}
-                  className="bg-[#6600FF] hover:bg-[#5500d6] text-white font-bold px-6 py-3 rounded-full shadow-lg transition-colors"
+                  className="bg-accent hover:bg-accent-hover text-foreground font-bold px-6 py-3 rounded-full shadow-lg transition-colors"
                 >
                   Try again
                 </motion.button>
@@ -531,15 +531,15 @@ export function PitchClient({ scenario }: { scenario: Scenario }) {
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.97 }}
                 transition={{ type: "spring", stiffness: 400, damping: 20 }}
-                className="bg-white hover:bg-[#f2e9ff] text-[#001220] font-black text-lg px-8 py-4 rounded-full shadow-lg transition-colors"
+                className="bg-foreground hover:bg-accent-soft text-background font-black text-lg px-8 py-4 rounded-full shadow-lg transition-colors"
               >
                 Stop Recording
               </motion.button>
             )}
 
             {status === "uploading" && (
-              <div className="bg-white/5 border border-white/10 rounded-2xl shadow-lg px-8 py-6 flex items-center gap-4">
-                <div className="w-8 h-8 rounded-full border-4 border-white/15 border-t-white animate-spin shrink-0" />
+              <div className="bg-surface border border-border rounded-2xl shadow-lg px-8 py-6 flex items-center gap-4">
+                <div className="w-8 h-8 rounded-full border-4 border-border border-t-white animate-spin shrink-0" />
                 <Image
                   src="/boss/boss-interested.png"
                   alt="The boss, waiting"
@@ -547,13 +547,13 @@ export function PitchClient({ scenario }: { scenario: Scenario }) {
                   height={40}
                   className="w-10 h-10 rounded-full object-cover shrink-0"
                 />
-                <p className="text-white font-medium">Uploading your pitch...</p>
+                <p className="text-foreground font-medium">Uploading your pitch...</p>
               </div>
             )}
 
             {status === "transcribing" && (
-              <div className="bg-white/5 border border-white/10 rounded-2xl shadow-lg px-8 py-6 flex items-center gap-4">
-                <div className="w-8 h-8 rounded-full border-4 border-white/15 border-t-white animate-spin shrink-0" />
+              <div className="bg-surface border border-border rounded-2xl shadow-lg px-8 py-6 flex items-center gap-4">
+                <div className="w-8 h-8 rounded-full border-4 border-border border-t-white animate-spin shrink-0" />
                 <Image
                   src="/boss/boss-interested.png"
                   alt="The boss, waiting"
@@ -561,13 +561,13 @@ export function PitchClient({ scenario }: { scenario: Scenario }) {
                   height={40}
                   className="w-10 h-10 rounded-full object-cover shrink-0"
                 />
-                <p className="text-white font-medium">Transcribing...</p>
+                <p className="text-foreground font-medium">Transcribing...</p>
               </div>
             )}
 
             {status === "submitting" && (
-              <div className="bg-white/5 border border-white/10 rounded-2xl shadow-lg px-8 py-6 flex items-center gap-4">
-                <div className="w-8 h-8 rounded-full border-4 border-white/15 border-t-white animate-spin shrink-0" />
+              <div className="bg-surface border border-border rounded-2xl shadow-lg px-8 py-6 flex items-center gap-4">
+                <div className="w-8 h-8 rounded-full border-4 border-border border-t-white animate-spin shrink-0" />
                 <Image
                   src="/boss/boss-attentive.png"
                   alt="The boss, reviewing your pitch"
@@ -575,7 +575,7 @@ export function PitchClient({ scenario }: { scenario: Scenario }) {
                   height={40}
                   className="w-10 h-10 rounded-full object-cover shrink-0"
                 />
-                <p className="text-white font-medium">
+                <p className="text-foreground font-medium">
                   The boss is reviewing your pitch...
                 </p>
               </div>
@@ -589,7 +589,7 @@ export function PitchClient({ scenario }: { scenario: Scenario }) {
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.97 }}
                   transition={{ type: "spring", stiffness: 400, damping: 20 }}
-                  className="bg-[#6600FF] hover:bg-[#5500d6] text-white font-bold px-6 py-3 rounded-full shadow-lg transition-colors"
+                  className="bg-accent hover:bg-accent-hover text-foreground font-bold px-6 py-3 rounded-full shadow-lg transition-colors"
                 >
                   Retry
                 </motion.button>
@@ -598,7 +598,7 @@ export function PitchClient({ scenario }: { scenario: Scenario }) {
 
             {status === "transcribed" && (
               <div className="w-full flex flex-col items-center gap-6">
-                <div className="w-full bg-white/5 border border-white/10 rounded-2xl shadow-lg p-5 text-sm text-white font-medium leading-relaxed max-h-64 overflow-y-auto">
+                <div className="w-full bg-surface border border-border rounded-2xl shadow-lg p-5 text-sm text-foreground font-medium leading-relaxed max-h-64 overflow-y-auto">
                   <HighlightedTranscript text={transcript} />
                 </div>
 
@@ -606,7 +606,7 @@ export function PitchClient({ scenario }: { scenario: Scenario }) {
                   <span className="bg-warning/20 text-warning text-sm font-bold px-4 py-1.5 rounded-full">
                     {fillerWords?.count ?? 0} filler words
                   </span>
-                  <span className="bg-[#6600FF]/20 text-[#B8A6FF] text-sm font-bold px-4 py-1.5 rounded-full">
+                  <span className="bg-accent/20 text-highlight text-sm font-bold px-4 py-1.5 rounded-full">
                     {wpm ?? 0} words/min
                   </span>
                 </div>
@@ -618,7 +618,7 @@ export function PitchClient({ scenario }: { scenario: Scenario }) {
                   whileHover={{ scale: 1.03 }}
                   whileTap={{ scale: 0.98 }}
                   transition={{ type: "spring", stiffness: 400, damping: 20 }}
-                  className="w-full max-w-sm bg-white hover:bg-[#f2e9ff] text-[#001220] font-black py-4 rounded-full shadow-lg transition-colors"
+                  className="w-full max-w-sm bg-foreground hover:bg-accent-soft text-background font-black py-4 rounded-full shadow-lg transition-colors"
                 >
                   Looks good, score my pitch
                 </motion.button>

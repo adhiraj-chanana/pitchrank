@@ -20,7 +20,7 @@ const MILESTONE_CONTENT: Record<
   7: {
     emoji: "🔥",
     title: "7 Day Streak!",
-    titleColor: "text-orange-500",
+    titleColor: "text-highlight",
     subtitle: "Intermediate tier unlocked",
     description:
       "You're no longer a beginner. Harder scenarios start tomorrow.",
@@ -30,7 +30,7 @@ const MILESTONE_CONTENT: Record<
   14: {
     emoji: "⚡",
     title: "14 Day Streak!",
-    titleColor: "text-[#6600FF]",
+    titleColor: "text-accent",
     subtitle: "Advanced tier unlocked",
     description:
       "Panel interviews. Offer negotiations. The real stuff starts now.",
@@ -40,7 +40,7 @@ const MILESTONE_CONTENT: Record<
   30: {
     emoji: "👑",
     title: "30 Day Streak!",
-    titleColor: "text-yellow-500",
+    titleColor: "text-success",
     subtitle: "Expert tier unlocked",
     description:
       "30 days. You're in the top 1% of people who actually follow through.",
@@ -50,12 +50,12 @@ const MILESTONE_CONTENT: Record<
 };
 
 const CONFETTI_COLORS = [
-  "#6600FF",
-  "#715DF2",
-  "#f59e0b",
-  "#22c55e",
-  "#ef4444",
-  "#ec4899",
+  "#E8553A",
+  "#E3B23C",
+  "#7FB069",
+  "#F4EEE3",
+  "#CF4830",
+  "#C99A2E",
 ];
 const CONFETTI_COUNT = 20;
 
@@ -95,7 +95,7 @@ export function StreakCelebration({
   const content = MILESTONE_CONTENT[milestone];
 
   return (
-    <div className="fixed inset-0 z-[100] bg-black/80 flex items-center justify-center p-6 overflow-hidden">
+    <div className="fixed inset-0 z-[100] bg-background/90 flex items-center justify-center p-6 overflow-hidden">
       {confetti.map((piece, i) => (
         <div
           key={i}
@@ -111,12 +111,12 @@ export function StreakCelebration({
         />
       ))}
 
-      <div className="relative z-10 bg-white rounded-3xl shadow-2xl p-12 max-w-md w-full text-center">
+      <div className="relative z-10 bg-foreground rounded-3xl shadow-2xl p-12 max-w-md w-full text-center">
         <span className="text-7xl">{content.emoji}</span>
-        <h2 className={`mt-4 text-5xl font-black ${content.titleColor}`}>
+        <h2 className={`mt-4 font-display text-5xl font-bold ${content.titleColor}`}>
           {content.title}
         </h2>
-        <p className="mt-2 text-lg font-bold text-foreground">
+        <p className="mt-2 text-lg font-bold text-background">
           {content.subtitle}
         </p>
         <p className="mt-4 text-muted font-medium leading-relaxed">
@@ -143,7 +143,7 @@ export function StreakCelebration({
           whileHover={{ scale: 1.03 }}
           whileTap={{ scale: 0.98 }}
           transition={{ type: "spring", stiffness: 400, damping: 20 }}
-          className="mt-8 w-full bg-[#6600FF] hover:bg-[#5500d6] text-white font-bold py-4 rounded-full shadow-lg transition-colors"
+          className="mt-8 w-full bg-accent hover:bg-accent-hover text-foreground font-bold py-4 rounded-full shadow-lg transition-colors"
         >
           See my results
         </motion.button>

@@ -22,22 +22,16 @@ export function ScoreBar({
   return (
     <div>
       <div className="flex items-center justify-between mb-2">
+        <span className="text-sm font-bold text-muted">{label}</span>
         <span
-          className={`text-sm font-bold ${isDark ? "text-white/60" : "text-muted"}`}
-        >
-          {label}
-        </span>
-        <span
-          className={`text-xs font-black text-white px-2.5 py-0.5 rounded-full ${color}`}
+          className={`text-xs font-black text-background px-2.5 py-0.5 rounded-full ${color}`}
         >
           {value}/{max}
         </span>
       </div>
       <div
-        className={`w-full h-4 rounded-full overflow-hidden ${
-          isDark
-            ? "bg-white/10 border-2 border-white/10"
-            : "bg-gray-100 border-2 border-border"
+        className={`w-full h-4 rounded-full overflow-hidden border-2 border-border ${
+          isDark ? "bg-background" : "bg-border/20"
         }`}
       >
         <div

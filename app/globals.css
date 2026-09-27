@@ -3,12 +3,17 @@
 @tailwind utilities;
 
 html {
-  color-scheme: light;
+  color-scheme: dark;
 }
 
 body {
-  color: #111827;
-  background: #fafafa;
+  color: #F4EEE3;
+  background: #16130F;
+}
+
+::selection {
+  background: #E8553A;
+  color: #F4EEE3;
 }
 
 @keyframes fade-in-up {

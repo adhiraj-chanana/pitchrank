@@ -49,17 +49,17 @@ export default function LoginPage() {
         initial={{ opacity: 0, y: 16 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.4, ease: "easeOut" }}
-        className="w-full max-w-sm bg-white/5 border-[3px] border-[#6600FF] rounded-3xl shadow-lg p-8"
+        className="w-full max-w-sm bg-surface border-[3px] border-accent rounded-3xl shadow-lg p-8"
       >
-        <h1 className="text-2xl font-black text-white mb-1">Welcome back</h1>
-        <p className="text-sm text-white/60 font-medium mb-6">
+        <h1 className="font-display text-2xl font-bold text-foreground mb-1">Welcome back</h1>
+        <p className="text-sm text-muted font-medium mb-6">
           Log in to keep your streak alive.
         </p>
 
         <form onSubmit={handleSubmit} className="flex flex-col gap-4">
           <div>
             <label
-              className="block text-sm font-bold text-white/60 mb-1.5"
+              className="block text-sm font-bold text-muted mb-1.5"
               htmlFor="email"
             >
               Email
@@ -70,13 +70,13 @@ export default function LoginPage() {
               required
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="w-full bg-[#001220] border-2 border-white/15 rounded-2xl px-4 py-3 text-white font-medium placeholder:text-white/30 focus:outline-none focus:ring-2 focus:ring-[#6600FF] focus:border-[#6600FF]"
+              className="w-full bg-background border-2 border-border rounded-2xl px-4 py-3 text-foreground font-medium placeholder:text-muted focus:outline-none focus:ring-2 focus:ring-accent focus:border-accent"
               placeholder="you@example.com"
             />
           </div>
           <div>
             <label
-              className="block text-sm font-bold text-white/60 mb-1.5"
+              className="block text-sm font-bold text-muted mb-1.5"
               htmlFor="password"
             >
               Password
@@ -87,7 +87,7 @@ export default function LoginPage() {
               required
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="w-full bg-[#001220] border-2 border-white/15 rounded-2xl px-4 py-3 text-white font-medium placeholder:text-white/30 focus:outline-none focus:ring-2 focus:ring-[#6600FF] focus:border-[#6600FF]"
+              className="w-full bg-background border-2 border-border rounded-2xl px-4 py-3 text-foreground font-medium placeholder:text-muted focus:outline-none focus:ring-2 focus:ring-accent focus:border-accent"
               placeholder="••••••••"
             />
           </div>
@@ -100,15 +100,15 @@ export default function LoginPage() {
             whileHover={{ scale: loading ? 1 : 1.03 }}
             whileTap={{ scale: loading ? 1 : 0.98 }}
             transition={{ type: "spring", stiffness: 400, damping: 20 }}
-            className="mt-2 w-full bg-[#6600FF] hover:bg-[#5500d6] disabled:opacity-50 text-white font-bold py-3 rounded-full shadow-lg transition-colors"
+            className="mt-2 w-full bg-accent hover:bg-accent-hover disabled:opacity-50 text-foreground font-bold py-3 rounded-full shadow-lg transition-colors"
           >
             {loading ? "Logging in..." : "Log in"}
           </motion.button>
         </form>
 
-        <p className="mt-6 text-sm text-white/60 font-medium text-center">
+        <p className="mt-6 text-sm text-muted font-medium text-center">
           Don&apos;t have an account?{" "}
-          <Link href="/signup" className="text-[#715DF2] font-bold hover:text-white transition-colors">
+          <Link href="/signup" className="text-highlight font-bold hover:text-foreground transition-colors">
             Sign up
           </Link>
         </p>

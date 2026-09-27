@@ -47,11 +47,11 @@ export default async function HistoryPage() {
       />
 
       <main className="max-w-4xl mx-auto px-6 py-8 pb-20">
-        <h1 className="text-2xl font-black text-white mb-6">History</h1>
+        <h1 className="font-display text-2xl font-bold text-foreground mb-6">History</h1>
 
         {typedAttempts.length === 0 ? (
-          <div className="bg-white/5 border-2 border-white/10 rounded-2xl shadow-lg p-10 text-center">
-            <p className="text-white/60 font-medium">
+          <div className="bg-surface border-2 border-border rounded-2xl shadow-lg p-10 text-center">
+            <p className="text-muted font-medium">
               No attempts yet. Record your first pitch to start your history.
             </p>
           </div>
@@ -62,17 +62,17 @@ export default async function HistoryPage() {
             <div className="flex flex-col gap-3 mt-8">
               {typedAttempts.map((attempt) => (
                 <HoverScale key={attempt.id} scale={1.02} y={-2}>
-                  <div className="flex items-center justify-between bg-white/5 border-2 border-white/10 rounded-2xl shadow-lg px-5 py-4">
+                  <div className="flex items-center justify-between bg-surface border-2 border-border rounded-2xl shadow-lg px-5 py-4">
                     <div>
-                      <div className="text-white font-bold">
+                      <div className="text-foreground font-bold">
                         {attempt.scenarios?.title ?? "Scenario"}
                       </div>
-                      <div className="text-xs font-medium text-white/50 mt-0.5">
+                      <div className="text-xs font-medium text-muted mt-0.5">
                         {attempt.date}
                       </div>
                     </div>
                     <div
-                      className={`w-12 h-12 shrink-0 flex items-center justify-center rounded-full text-white font-black ${scoreBadgeColor(
+                      className={`w-12 h-12 shrink-0 flex items-center justify-center rounded-full text-foreground font-black ${scoreBadgeColor(
                         attempt.score?.overall ?? 0
                       )}`}
                     >

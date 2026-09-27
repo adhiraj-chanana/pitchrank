@@ -9,19 +9,28 @@ const config: Config = {
   ],
   theme: {
     extend: {
+      fontFamily: {
+        display: ["var(--font-display)", "ui-sans-serif", "system-ui", "sans-serif"],
+      },
       colors: {
-        background: "#fafafa",
-        surface: "#ffffff",
-        border: "#e5e7eb",
-        foreground: "#111827",
-        muted: "#6b7280",
+        background: "#16130F",
+        surface: "#211C16",
+        border: "#3A3128",
+        foreground: "#F4EEE3",
+        muted: "#A89F92",
         accent: {
-          DEFAULT: "#4f46e5",
-          hover: "#4338ca",
+          DEFAULT: "#E8553A",
+          hover: "#CF4830",
+          soft: "#F7DED7",
         },
-        success: "#22c55e",
-        warning: "#f59e0b",
-        danger: "#ef4444",
+        highlight: {
+          DEFAULT: "#E3B23C",
+          hover: "#C99A2E",
+          soft: "#F5E4BC",
+        },
+        success: "#7FB069",
+        warning: "#E3B23C",
+        danger: "#E8553A",
       },
       keyframes: {
         "pulse-ring": {
