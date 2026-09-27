@@ -160,12 +160,12 @@ export default async function FeedbackPage() {
                         <h3 className="text-xs font-black text-foreground mb-2 uppercase tracking-wide">
                           What Marcus noticed
                         </h3>
-                        <div className="flex flex-col gap-2">
+                        <div className="flex flex-col divide-y divide-border border-t border-b border-border">
                           {score.feedback.map((point, i) => (
-                            <div
-                              key={i}
-                              className="bg-surface shadow-sm border-l-4 border-l-accent rounded-xl p-3"
-                            >
+                            <div key={i} className="flex items-start gap-3 py-2.5">
+                              <span className="shrink-0 w-5 h-5 rounded-full bg-accent text-foreground text-[10px] font-black flex items-center justify-center">
+                                {i + 1}
+                              </span>
                               <p className="text-sm text-foreground font-medium">
                                 {point}
                               </p>
@@ -179,12 +179,12 @@ export default async function FeedbackPage() {
                           <h3 className="text-xs font-black text-foreground mb-2 uppercase tracking-wide">
                             What worked
                           </h3>
-                          <div className="flex flex-col gap-2">
+                          <div className="flex flex-col divide-y divide-border border-t border-b border-border">
                             {score.strong_moments.map((point, i) => (
-                              <div
-                                key={i}
-                                className="bg-success/10 border-l-4 border-l-success shadow-sm rounded-xl p-3"
-                              >
+                              <div key={i} className="flex items-start gap-3 py-2.5">
+                                <span className="shrink-0 w-5 h-5 rounded-full bg-success/20 text-success text-[10px] font-black flex items-center justify-center">
+                                  ✓
+                                </span>
                                 <p className="text-sm text-foreground font-medium">
                                   {point}
                                 </p>
