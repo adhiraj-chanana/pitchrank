@@ -3,7 +3,8 @@ import { createClient } from "@/lib/supabase/server";
 import { getOrCreateTodayScenario } from "@/lib/today-scenario";
 import { scorePitch, generateBossDialogue } from "@/lib/scoring";
 import { bossStateForScore, FALLBACK_BOSS_DIALOGUE } from "@/lib/boss";
-import { todayDateString } from "@/lib/date";
+import { todayDateString, previousDateString } from "@/lib/date";
+import { getRequestTimeZone } from "@/lib/timezone";
 import { getMoodForDate } from "@/lib/marcusMood";
 import type { Milestone, PitchScore } from "@/lib/types";
 
@@ -17,7 +18,8 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const today = todayDateString();
+  const timeZone = await getRequestTimeZone();
+  const today = todayDateString(timeZone);
 
   // NOTE: this is a global one-pitch-per-day check, not per-category — with
   // only one category today that distinction is invisible. When a second
@@ -58,7 +60,7 @@ export async function POST(request: Request) {
 
   // The daily scenario is derived server-side rather than trusting the
   // client-supplied scenarioId, since it's a shared, date-keyed row.
-  const scenario = await getOrCreateTodayScenario(user.id);
+  const scenario = await getOrCreateTodayScenario(user.id, undefined, timeZone);
 
   const mood = getMoodForDate(new Date());
 
@@ -131,9 +133,7 @@ export async function POST(request: Request) {
     .eq("user_id", user.id)
     .maybeSingle();
 
-  const yesterday = new Date();
-  yesterday.setDate(yesterday.getDate() - 1);
-  const yesterdayStr = yesterday.toISOString().slice(0, 10);
+  const yesterdayStr = previousDateString(today);
 
   const priorStreak = streakRow?.current_streak ?? 0;
   const newStreak =

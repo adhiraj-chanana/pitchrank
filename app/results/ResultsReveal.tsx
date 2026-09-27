@@ -213,10 +213,6 @@ export function ResultsReveal({
                 {streakCount} day{streakCount === 1 ? "" : "s"} streak. Don&apos;t
                 break it.
               </p>
-              <p className="text-muted font-medium mt-2 text-xs">
-                The day resets on a fixed schedule, not necessarily your
-                local midnight.
-              </p>
             </div>
             <motion.div
               whileHover={{ scale: 1.05 }}

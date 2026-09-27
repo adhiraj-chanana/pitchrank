@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { todayDateString } from "@/lib/date";
+import { getRequestTimeZone } from "@/lib/timezone";
 import { ResultsReveal } from "./ResultsReveal";
 import type { PitchScore } from "@/lib/types";
 
@@ -27,7 +28,7 @@ export default async function ResultsPage({
 
   const { data: attempt } = attemptId
     ? await query.eq("id", attemptId).maybeSingle()
-    : await query.eq("date", todayDateString()).maybeSingle();
+    : await query.eq("date", todayDateString(await getRequestTimeZone())).maybeSingle();
 
   if (!attempt) {
     redirect("/pitch");

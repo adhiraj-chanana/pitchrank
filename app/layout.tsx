@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Bricolage_Grotesque } from "next/font/google";
+import { TimezoneSync } from "@/components/TimezoneSync";
 import "./globals.css";
 
 const displayFont = Bricolage_Grotesque({
@@ -22,6 +23,7 @@ export default function RootLayout({
   return (
     <html lang="en" className={displayFont.variable}>
       <body className="antialiased bg-background text-foreground min-h-screen font-medium">
+        <TimezoneSync />
         {children}
       </body>
     </html>

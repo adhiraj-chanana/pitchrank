@@ -44,9 +44,10 @@ async function pickRandomScenarioForTierAndCategory(
 // without any other change here.
 export async function getOrCreateTodayScenario(
   userId: string,
-  categorySlug: string = DEFAULT_CATEGORY_SLUG
+  categorySlug: string = DEFAULT_CATEGORY_SLUG,
+  timeZone?: string
 ): Promise<Scenario> {
-  const date = todayDateString();
+  const date = todayDateString(timeZone);
   const supabase = await createClient();
   const category = await getCategoryBySlug(categorySlug);
 

@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { getOrCreateTodayScenario } from "@/lib/today-scenario";
+import { getRequestTimeZone } from "@/lib/timezone";
 
 export async function GET() {
   const supabase = await createClient();
@@ -13,7 +14,8 @@ export async function GET() {
   }
 
   try {
-    const scenario = await getOrCreateTodayScenario(user.id);
+    const timeZone = await getRequestTimeZone();
+    const scenario = await getOrCreateTodayScenario(user.id, undefined, timeZone);
     return NextResponse.json({ scenario });
   } catch (err) {
     const message = err instanceof Error ? err.message : "Unknown error";

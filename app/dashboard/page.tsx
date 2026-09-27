@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { getOrCreateTodayScenario } from "@/lib/today-scenario";
 import { todayDateString } from "@/lib/date";
+import { getRequestTimeZone } from "@/lib/timezone";
 import { streakProgressMessage, tierForStreak, TIER_LABELS } from "@/lib/tiers";
 import { bossStateForScore, BOSS_STATE_CONFIG } from "@/lib/boss";
 import { getMoodForDate } from "@/lib/marcusMood";
@@ -38,7 +39,8 @@ export default async function DashboardPage() {
 
   const currentStreak = streakRow?.current_streak ?? 0;
 
-  const today = todayDateString();
+  const timeZone = await getRequestTimeZone();
+  const today = todayDateString(timeZone);
   const { data: todayAttempt } = await supabase
     .from("pitch_attempts")
     .select("*")
@@ -46,7 +48,7 @@ export default async function DashboardPage() {
     .eq("date", today)
     .maybeSingle();
 
-  const scenario = await getOrCreateTodayScenario(user.id);
+  const scenario = await getOrCreateTodayScenario(user.id, undefined, timeZone);
 
   const { data: recentAttempts } = await supabase
     .from("pitch_attempts")
@@ -171,21 +173,14 @@ export default async function DashboardPage() {
           </div>
 
           {todayAttempt ? (
-            <div className="mt-8 border-t border-b border-border py-4">
-              <div className="flex items-center justify-between">
-                <div>
-                  <div className="text-xs font-bold text-muted">Today&apos;s score</div>
-                  <div className="text-2xl font-black text-foreground">
-                    {(todayAttempt.score as PitchScore | null)?.overall ?? "—"}
-                  </div>
+            <div className="mt-8 flex items-center justify-between border-t border-b border-border py-4">
+              <div>
+                <div className="text-xs font-bold text-muted">Today&apos;s score</div>
+                <div className="text-2xl font-black text-foreground">
+                  {(todayAttempt.score as PitchScore | null)?.overall ?? "—"}
                 </div>
-                <span className="text-xs font-bold text-muted">Come back tomorrow</span>
               </div>
-              <p className="mt-3 text-xs text-muted font-medium">
-                The day resets on a fixed schedule, not necessarily your
-                local midnight, so a late-night pitch may already count as
-                tomorrow&apos;s.
-              </p>
+              <span className="text-xs font-bold text-muted">Come back tomorrow</span>
             </div>
           ) : (
             <Link
