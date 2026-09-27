@@ -1,3 +1,4 @@
+import Image from "next/image";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { HistoryChart } from "./HistoryChart";
@@ -50,9 +51,17 @@ export default async function HistoryPage() {
         <h1 className="font-display text-2xl font-bold text-foreground mb-6">History</h1>
 
         {typedAttempts.length === 0 ? (
-          <div className="bg-surface border-2 border-border rounded-2xl shadow-lg p-10 text-center">
+          <div className="bg-surface border-2 border-border rounded-2xl shadow-lg p-10 flex flex-col items-center gap-4 text-center">
+            <Image
+              src="/boss/boss-dismissive.png"
+              alt=""
+              width={40}
+              height={40}
+              className="w-10 h-10 rounded-full object-cover border-2 border-border"
+            />
             <p className="text-muted font-medium">
-              No attempts yet. Record your first pitch to start your history.
+              No history yet. Marcus needs at least one pitch to judge before
+              there&apos;s anything to look back on.
             </p>
           </div>
         ) : (

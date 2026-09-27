@@ -39,11 +39,13 @@ export function ResultsReveal({
   score,
   transcript,
   streakCount,
+  isFirstEver = false,
 }: {
   scenarioTitle: string;
   score: PitchScore;
   transcript: string;
   streakCount: number;
+  isFirstEver?: boolean;
 }) {
   const [revealed, setRevealed] = useState(false);
 
@@ -203,6 +205,18 @@ export function ResultsReveal({
               <HighlightedTranscript text={transcript} />
             </p>
           </div>
+
+          {isFirstEver && (
+            <div className="mb-6 text-center">
+              <p className="font-display text-2xl font-bold text-highlight">
+                Day 1 done.
+              </p>
+              <p className="mt-1 text-sm text-muted font-medium">
+                That&apos;s the hardest pitch of the streak. It&apos;s the
+                only one you had to start cold.
+              </p>
+            </div>
+          )}
 
           <div className="border-t-2 border-highlight pt-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-5">
             <div>

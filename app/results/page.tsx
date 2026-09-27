@@ -40,6 +40,11 @@ export default async function ResultsPage({
     .eq("user_id", user.id)
     .maybeSingle();
 
+  const { count: attemptCount } = await supabase
+    .from("pitch_attempts")
+    .select("id", { count: "exact", head: true })
+    .eq("user_id", user.id);
+
   const scenarioTitle =
     (attempt as unknown as { scenarios: { title: string } | null }).scenarios
       ?.title ?? "Today's pitch";
@@ -50,6 +55,7 @@ export default async function ResultsPage({
       score={attempt.score as PitchScore}
       transcript={attempt.transcript ?? ""}
       streakCount={streakRow?.current_streak ?? 1}
+      isFirstEver={(attemptCount ?? 0) === 1}
     />
   );
 }

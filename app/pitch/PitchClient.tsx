@@ -64,9 +64,16 @@ function getFileExtension(mimeType: string): string {
   return "audio";
 }
 
-export function PitchClient({ scenario }: { scenario: Scenario }) {
+export function PitchClient({
+  scenario,
+  isFirstRun = false,
+}: {
+  scenario: Scenario;
+  isFirstRun?: boolean;
+}) {
   const router = useRouter();
 
+  const [showIntro, setShowIntro] = useState(isFirstRun);
   const [micStatus, setMicStatus] = useState<MicStatus>("requesting");
   const [status, setStatus] = useState<Status>("idle");
   const [secondsLeft, setSecondsLeft] = useState(RECORDING_SECONDS);
@@ -421,6 +428,28 @@ export function PitchClient({ scenario }: { scenario: Scenario }) {
             &ldquo;{scenario.prompt}&rdquo;
           </p>
         </div>
+
+        {showIntro && (
+          <div className="border border-border rounded-2xl px-5 py-4 mb-8 flex items-start justify-between gap-4">
+            <div>
+              <p className="text-sm font-bold text-foreground mb-1.5">
+                What to expect
+              </p>
+              <ul className="text-sm text-muted font-medium leading-relaxed space-y-1">
+                <li>60 seconds. No script, no do-overs.</li>
+                <li>Marcus reacts to the specific words you use.</li>
+                <li>One pitch counts per day, so take your time before you tap record.</li>
+              </ul>
+            </div>
+            <button
+              onClick={() => setShowIntro(false)}
+              aria-label="Dismiss"
+              className="shrink-0 text-muted hover:text-foreground font-bold text-sm"
+            >
+              Got it
+            </button>
+          </div>
+        )}
 
         {micStatus === "requesting" && (
           <div className="flex-1 flex flex-col items-center justify-center gap-3 text-center">

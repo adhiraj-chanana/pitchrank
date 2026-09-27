@@ -32,5 +32,10 @@ export default async function PitchPage() {
 
   const scenario = await getOrCreateTodayScenario(user.id, undefined, timeZone);
 
-  return <PitchClient scenario={scenario} />;
+  const { count: attemptCount } = await supabase
+    .from("pitch_attempts")
+    .select("id", { count: "exact", head: true })
+    .eq("user_id", user.id);
+
+  return <PitchClient scenario={scenario} isFirstRun={(attemptCount ?? 0) === 0} />;
 }

@@ -57,6 +57,13 @@ export default async function DashboardPage() {
     .order("date", { ascending: false })
     .limit(3);
 
+  const { count: attemptCount } = await supabase
+    .from("pitch_attempts")
+    .select("id", { count: "exact", head: true })
+    .eq("user_id", user.id);
+
+  const isNewUser = (attemptCount ?? 0) === 0;
+
   const name = (user.user_metadata?.name as string | undefined) ?? "there";
 
   const mood = getMoodForDate(new Date());
@@ -86,6 +93,28 @@ export default async function DashboardPage() {
         />
 
         <main className="max-w-2xl mx-auto px-6 pb-20 pt-6">
+          {isNewUser && (
+            <div className="mb-8 flex items-start gap-4 border-b border-border pb-6">
+              <Image
+                src="/boss/boss-interested.png"
+                alt="Marcus"
+                width={56}
+                height={56}
+                className="w-14 h-14 rounded-full object-cover border-2 border-border shrink-0"
+              />
+              <div>
+                <p className="font-display text-lg font-bold text-foreground">
+                  Marcus is expecting you.
+                </p>
+                <p className="mt-1 text-sm text-muted font-medium leading-relaxed">
+                  He&apos;s a skeptical VC who has heard every pitch in the
+                  book. Record today&apos;s scenario below and find out what
+                  he really thinks.
+                </p>
+              </div>
+            </div>
+          )}
+
           <p className="text-sm font-bold text-muted">Hey {name}</p>
 
           <div className="mt-3 flex items-end gap-3">
