@@ -3,12 +3,15 @@
 import { useState } from "react";
 import Image from "next/image";
 import { motion } from "framer-motion";
+import { FlameIcon } from "@/components/icons/FlameIcon";
+import { LightningIcon } from "@/components/icons/LightningIcon";
+import { CrownIcon } from "@/components/icons/CrownIcon";
 import type { Milestone } from "@/lib/types";
 
 const MILESTONE_CONTENT: Record<
   Milestone,
   {
-    emoji: string;
+    Icon: (props: { className?: string }) => React.JSX.Element;
     title: string;
     titleColor: string;
     subtitle: string;
@@ -18,7 +21,7 @@ const MILESTONE_CONTENT: Record<
   }
 > = {
   7: {
-    emoji: "🔥",
+    Icon: FlameIcon,
     title: "7 Day Streak!",
     titleColor: "text-highlight",
     subtitle: "Intermediate tier unlocked",
@@ -28,7 +31,7 @@ const MILESTONE_CONTENT: Record<
     bossQuote: "Hm. You actually showed up.",
   },
   14: {
-    emoji: "⚡",
+    Icon: LightningIcon,
     title: "14 Day Streak!",
     titleColor: "text-accent",
     subtitle: "Advanced tier unlocked",
@@ -38,7 +41,7 @@ const MILESTONE_CONTENT: Record<
     bossQuote: "I'm starting to take you seriously.",
   },
   30: {
-    emoji: "👑",
+    Icon: CrownIcon,
     title: "30 Day Streak!",
     titleColor: "text-success",
     subtitle: "Expert tier unlocked",
@@ -112,7 +115,7 @@ export function StreakCelebration({
       ))}
 
       <div className="relative z-10 bg-foreground rounded-3xl shadow-2xl p-12 max-w-md w-full text-center">
-        <span className="text-7xl">{content.emoji}</span>
+        <content.Icon className={`w-16 h-16 mx-auto ${content.titleColor}`} />
         <h2 className={`mt-4 font-display text-5xl font-bold ${content.titleColor}`}>
           {content.title}
         </h2>
