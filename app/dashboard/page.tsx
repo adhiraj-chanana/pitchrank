@@ -130,6 +130,9 @@ export default async function DashboardPage() {
               </span>
             ))}
           </div>
+          <p className="mt-3 text-xs text-muted font-medium">
+            One pitch a day. Miss a day and your streak resets.
+          </p>
 
           <div className="mt-10 border-t border-border pt-6">
             <div className="float-right ml-4 mb-2 w-24">
