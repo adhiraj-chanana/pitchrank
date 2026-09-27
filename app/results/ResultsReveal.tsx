@@ -15,12 +15,6 @@ function overallScoreColor(overall: number): string {
   return "text-success";
 }
 
-function scoreCardClasses(overall: number): string {
-  if (overall < 50) return "bg-danger/10 border-danger/30";
-  if (overall < 75) return "bg-warning/10 border-warning/30";
-  return "bg-success/10 border-success/30";
-}
-
 function scoreVerdict(overall: number): string {
   if (overall < 50) return "The boss was not impressed.";
   if (overall < 75) return "You got his attention. Barely.";
@@ -90,11 +84,7 @@ export function ResultsReveal({
               : "opacity-0 translate-y-4 pointer-events-none"
           }`}
         >
-          <div
-            className={`text-center mb-10 rounded-3xl border-2 py-12 px-6 ${scoreCardClasses(
-              score.overall
-            )}`}
-          >
+          <div className="text-center py-4">
             <div
               className={`text-9xl font-black leading-none ${overallScoreColor(
                 score.overall
@@ -110,54 +100,46 @@ export function ResultsReveal({
             </p>
           </div>
 
-          <div className="mb-6">
-            <h2 className="font-display text-2xl font-bold text-foreground mb-4">
+          <div className="mt-10 border-t border-border pt-6 mb-6">
+            <h2 className="font-display text-xl font-bold text-foreground mb-1">
               The breakdown
             </h2>
-            <div className="grid sm:grid-cols-2 gap-3">
-              <div className="bg-surface rounded-xl shadow-sm p-4">
-                <ScoreBar variant="dark" label="Hook" value={score.dimensions.hook} />
-              </div>
-              <div className="bg-surface rounded-xl shadow-sm p-4">
-                <ScoreBar variant="dark" label="Clarity" value={score.dimensions.clarity} />
-              </div>
-              <div className="bg-surface rounded-xl shadow-sm p-4">
-                <ScoreBar
-                  variant="dark"
-                  label="Confidence"
-                  value={score.dimensions.confidence}
-                />
-              </div>
-              <div className="bg-surface rounded-xl shadow-sm p-4">
-                <ScoreBar variant="dark" label="Close" value={score.dimensions.close} />
-              </div>
-              <div className="bg-surface rounded-xl shadow-sm p-4">
-                <ScoreBar variant="dark" label="Filler" value={score.filler_penalty} />
-              </div>
-              <div className="bg-surface rounded-xl shadow-sm p-4">
-                <ScoreBar variant="dark" label="Pace" value={score.pace_score} />
-              </div>
+            <p className="text-sm text-muted font-medium mb-5">
+              How Marcus scored each part
+            </p>
+            <div className="grid sm:grid-cols-2 gap-x-8 gap-y-5">
+              <ScoreBar variant="dark" label="Hook" value={score.dimensions.hook} />
+              <ScoreBar variant="dark" label="Clarity" value={score.dimensions.clarity} />
+              <ScoreBar
+                variant="dark"
+                label="Confidence"
+                value={score.dimensions.confidence}
+              />
+              <ScoreBar variant="dark" label="Close" value={score.dimensions.close} />
+              <ScoreBar variant="dark" label="Filler" value={score.filler_penalty} />
+              <ScoreBar variant="dark" label="Pace" value={score.pace_score} />
             </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-4 mb-6">
-            <div className="bg-surface border-2 border-border rounded-2xl shadow-lg p-6 text-center">
+          <div className="flex items-center gap-8 border-t border-border pt-6 mb-6">
+            <div>
               <div
-                className={`text-5xl font-black ${fillerColor(
+                className={`text-4xl font-black ${fillerColor(
                   score.filler_words
                 )}`}
               >
                 {score.filler_words}
               </div>
-              <div className="text-xs font-bold text-muted mt-2 uppercase tracking-wide">
+              <div className="text-xs font-bold text-muted mt-1 uppercase tracking-wide">
                 Filler words
               </div>
             </div>
-            <div className="bg-surface border-2 border-border rounded-2xl shadow-lg p-6 text-center">
-              <div className={`text-5xl font-black ${wpmColor(score.wpm)}`}>
+            <div className="w-px h-10 bg-border" />
+            <div>
+              <div className={`text-4xl font-black ${wpmColor(score.wpm)}`}>
                 {score.wpm}
               </div>
-              <div className="text-xs font-bold text-muted mt-2 uppercase tracking-wide">
+              <div className="text-xs font-bold text-muted mt-1 uppercase tracking-wide">
                 Words per minute
               </div>
             </div>
@@ -167,12 +149,9 @@ export function ResultsReveal({
             <h2 className="text-sm font-black text-foreground mb-3 uppercase tracking-wide">
               What the boss noticed
             </h2>
-            <div className="flex flex-col gap-3">
+            <div className="flex flex-col divide-y divide-border border-t border-b border-border">
               {score.feedback.map((point, i) => (
-                <div
-                  key={i}
-                  className="bg-surface shadow-sm border-l-4 border-l-accent rounded-xl p-4 flex items-start gap-3"
-                >
+                <div key={i} className="flex items-start gap-3 py-3">
                   <span className="shrink-0 w-6 h-6 rounded-full bg-accent text-foreground text-xs font-black flex items-center justify-center">
                     {i + 1}
                   </span>
@@ -186,12 +165,12 @@ export function ResultsReveal({
             <h2 className="text-sm font-black text-foreground mb-3 uppercase tracking-wide">
               What worked
             </h2>
-            <div className="flex flex-col gap-3">
+            <div className="flex flex-col divide-y divide-border border-t border-b border-border">
               {score.strong_moments.map((point, i) => (
-                <div
-                  key={i}
-                  className="bg-success/10 border-l-4 border-l-success shadow-sm rounded-xl p-4"
-                >
+                <div key={i} className="flex items-start gap-3 py-3">
+                  <span className="shrink-0 w-6 h-6 rounded-full bg-success/20 text-success text-xs font-black flex items-center justify-center">
+                    ✓
+                  </span>
                   <p className="text-sm text-foreground font-medium">{point}</p>
                 </div>
               ))}
@@ -225,23 +204,25 @@ export function ResultsReveal({
             </p>
           </div>
 
-          <div className="bg-accent rounded-3xl shadow-lg p-8 text-center">
-            <p className="text-foreground font-black text-xl">
-              Come back tomorrow for a new scenario
-            </p>
-            <p className="text-muted font-bold mt-2">
-              {streakCount} day{streakCount === 1 ? "" : "s"} streak — don&apos;t
-              break it
-            </p>
+          <div className="border-t-2 border-highlight pt-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-5">
+            <div>
+              <p className="text-foreground font-bold text-lg">
+                Come back tomorrow for a new scenario.
+              </p>
+              <p className="text-muted font-medium mt-1 text-sm">
+                {streakCount} day{streakCount === 1 ? "" : "s"} streak. Don&apos;t
+                break it.
+              </p>
+            </div>
             <motion.div
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.97 }}
               transition={{ type: "spring", stiffness: 400, damping: 20 }}
-              className="inline-block mt-6"
+              className="shrink-0"
             >
               <Link
                 href="/dashboard"
-                className="block bg-foreground hover:bg-accent-soft text-accent font-black px-8 py-3.5 rounded-full shadow-lg transition-colors"
+                className="block text-center bg-accent hover:bg-accent-hover text-foreground font-bold px-8 py-3.5 rounded-full shadow-lg transition-colors"
               >
                 Back to Dashboard
               </Link>
