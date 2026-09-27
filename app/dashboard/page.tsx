@@ -12,10 +12,9 @@ import {
 } from "@/lib/tiers";
 import { bossStateForScore, BOSS_STATE_CONFIG } from "@/lib/boss";
 import { getMoodForDate } from "@/lib/marcusMood";
-import { Logo } from "@/components/Logo";
-import { LogoutButton } from "@/components/LogoutButton";
 import { MilestoneBanner } from "@/components/MilestoneBanner";
 import { PageBackground } from "@/components/PageBackground";
+import { AppHeader } from "@/components/AppHeader";
 import type { PitchAttempt, PitchScore } from "@/lib/types";
 
 function scoreBadgeColor(score: number): string {
@@ -80,32 +79,13 @@ export default async function DashboardPage() {
           />
         )}
 
-        <header className="w-full border-b border-white/10">
-          <div className="flex items-center justify-between px-6 py-6 sm:px-10 max-w-4xl mx-auto w-full">
-            <Logo href="/dashboard" theme="light" />
-            <div className="flex items-center gap-6">
-              <Link
-                href="/history"
-                className="text-sm font-bold text-white/60 hover:text-white transition-colors"
-              >
-                History
-              </Link>
-              <Link
-                href="/feedback"
-                className="text-sm font-bold text-white/60 hover:text-white transition-colors"
-              >
-                Feedback
-              </Link>
-              <Link
-                href="/about"
-                className="text-sm font-bold text-white/60 hover:text-white transition-colors"
-              >
-                About
-              </Link>
-              <LogoutButton className="text-sm font-bold text-white/60 hover:text-white transition-colors" />
-            </div>
-          </div>
-        </header>
+        <AppHeader
+          links={[
+            { href: "/history", label: "History" },
+            { href: "/feedback", label: "Feedback" },
+            { href: "/about", label: "About" },
+          ]}
+        />
 
         <div className="border-b border-white/10 px-6 py-5 sm:px-10 mb-8">
           <div className="max-w-4xl mx-auto w-full flex items-center justify-between gap-4">

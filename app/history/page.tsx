@@ -1,10 +1,9 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
-import { Logo } from "@/components/Logo";
-import { LogoutButton } from "@/components/LogoutButton";
 import { HistoryChart } from "./HistoryChart";
 import { HoverScale } from "@/components/motion/Hover";
 import { PageBackground } from "@/components/PageBackground";
+import { AppHeader } from "@/components/AppHeader";
 import type { PitchAttempt } from "@/lib/types";
 
 function scoreBadgeColor(score: number): string {
@@ -39,32 +38,13 @@ export default async function HistoryPage() {
 
   return (
     <PageBackground>
-      <header className="w-full border-b border-white/10">
-        <div className="flex items-center justify-between px-6 py-6 sm:px-10 max-w-4xl mx-auto w-full">
-          <Logo href="/dashboard" theme="light" />
-          <div className="flex items-center gap-6">
-            <a
-              href="/dashboard"
-              className="text-sm font-bold text-white/60 hover:text-white transition-colors"
-            >
-              Dashboard
-            </a>
-            <a
-              href="/feedback"
-              className="text-sm font-bold text-white/60 hover:text-white transition-colors"
-            >
-              Feedback
-            </a>
-            <a
-              href="/about"
-              className="text-sm font-bold text-white/60 hover:text-white transition-colors"
-            >
-              About
-            </a>
-            <LogoutButton className="text-sm font-bold text-white/60 hover:text-white transition-colors" />
-          </div>
-        </div>
-      </header>
+      <AppHeader
+        links={[
+          { href: "/dashboard", label: "Dashboard" },
+          { href: "/feedback", label: "Feedback" },
+          { href: "/about", label: "About" },
+        ]}
+      />
 
       <main className="max-w-4xl mx-auto px-6 py-8 pb-20">
         <h1 className="text-2xl font-black text-white mb-6">History</h1>
