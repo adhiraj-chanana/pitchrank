@@ -12,6 +12,7 @@ import { MilestoneBanner } from "@/components/MilestoneBanner";
 import { PageBackground } from "@/components/PageBackground";
 import { AppHeader } from "@/components/AppHeader";
 import { FlameIcon } from "@/components/icons/FlameIcon";
+import { StreakMoment } from "@/components/dashboard/StreakMoment";
 import type { PitchAttempt, PitchScore } from "@/lib/types";
 
 const TIER_MARKERS: { day: number; tier: "beginner" | "intermediate" | "advanced" | "expert" }[] = [
@@ -21,7 +22,12 @@ const TIER_MARKERS: { day: number; tier: "beginner" | "intermediate" | "advanced
   { day: 30, tier: "expert" },
 ];
 
-export default async function DashboardPage() {
+export default async function DashboardPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ justCompleted?: string }>;
+}) {
+  const { justCompleted } = await searchParams;
   const supabase = await createClient();
   const {
     data: { user },
@@ -119,9 +125,11 @@ export default async function DashboardPage() {
 
           <div className="mt-3 flex items-end gap-3">
             <FlameIcon className="w-9 h-9 text-highlight shrink-0 mb-1" />
-            <span className="font-display text-6xl font-bold text-foreground leading-none">
-              {currentStreak}
-            </span>
+            <StreakMoment
+              streak={currentStreak}
+              justCompleted={justCompleted === "1"}
+              className="font-display text-6xl font-bold text-foreground leading-none"
+            />
             <span className="text-sm font-bold text-muted mb-2">day streak</span>
           </div>
           <p className="mt-2 text-foreground font-bold text-sm">

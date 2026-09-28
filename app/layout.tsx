@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { Bricolage_Grotesque } from "next/font/google";
+import { Toaster } from "sonner";
 import { TimezoneSync } from "@/components/TimezoneSync";
 import "./globals.css";
 
@@ -34,6 +35,21 @@ export default function RootLayout({
       <body className="antialiased bg-background text-foreground min-h-screen font-medium">
         <TimezoneSync />
         {children}
+        {/* Sonner is a third-party toast implementation (its enter/exit
+            animation isn't ours to gate on prefers-reduced-motion, same
+            documented exception as GradientWaves' WebGL background). */}
+        <Toaster
+          theme="dark"
+          position="bottom-center"
+          toastOptions={{
+            classNames: {
+              toast:
+                "!bg-surface !border-2 !border-border !text-foreground !rounded-2xl !shadow-lg",
+              title: "!font-bold !text-foreground",
+              icon: "!text-success",
+            },
+          }}
+        />
       </body>
     </html>
   );

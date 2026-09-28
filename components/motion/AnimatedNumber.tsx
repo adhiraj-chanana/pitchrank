@@ -10,16 +10,19 @@ import { useEffect, useRef, useState } from "react";
  */
 export function AnimatedNumber({
   value,
+  from = 0,
   start,
   durationMs = 700,
   className,
 }: {
   value: number;
+  /** Starting number to count up from (defaults to 0). */
+  from?: number;
   start: boolean;
   durationMs?: number;
   className?: string;
 }) {
-  const [display, setDisplay] = useState(0);
+  const [display, setDisplay] = useState(from);
   const startedRef = useRef(false);
 
   useEffect(() => {
@@ -37,12 +40,12 @@ export function AnimatedNumber({
     function tick(now: number) {
       const progress = Math.min(1, (now - startTime) / durationMs);
       const eased = 1 - Math.pow(1 - progress, 3);
-      setDisplay(Math.round(eased * value));
+      setDisplay(Math.round(from + eased * (value - from)));
       if (progress < 1) frame = requestAnimationFrame(tick);
     }
     frame = requestAnimationFrame(tick);
     return () => cancelAnimationFrame(frame);
-  }, [start, value, durationMs]);
+  }, [start, value, from, durationMs]);
 
   return <span className={className}>{display}</span>;
 }

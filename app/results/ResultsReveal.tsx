@@ -281,7 +281,7 @@ export function ResultsReveal({
               className="shrink-0"
             >
               <Link
-                href="/dashboard"
+                href="/dashboard?justCompleted=1"
                 className="block text-center bg-accent hover:bg-accent-hover text-foreground font-bold px-8 py-3.5 rounded-full shadow-lg transition-colors"
               >
                 Back to Dashboard
