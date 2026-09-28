@@ -207,7 +207,7 @@ export default async function FeedbackPage() {
                             {score.hedging_phrases.map((phrase, i) => (
                               <span
                                 key={i}
-                                className="bg-danger/15 text-danger text-sm font-bold px-4 py-2 rounded-full"
+                                className="bg-danger/15 text-accent-soft text-sm font-bold px-4 py-2 rounded-full"
                               >
                                 &ldquo;{phrase}&rdquo;
                               </span>

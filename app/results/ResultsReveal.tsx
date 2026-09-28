@@ -15,8 +15,11 @@ import type { PitchScore } from "@/lib/types";
 const SCORE_COUNT_MS = 700;
 const BAR_STAGGER_MS = 80;
 
+// text-danger (#9C2B3C) fails WCAG AA as text on this dark background
+// (~2.5:1, needs 3:1 even at this large size) — accent-soft is the same
+// hue family, pale enough to clear 4.5:1 comfortably.
 function overallScoreColor(overall: number): string {
-  if (overall < 50) return "text-danger";
+  if (overall < 50) return "text-accent-soft";
   if (overall < 75) return "text-warning";
   return "text-success";
 }
@@ -30,11 +33,11 @@ function scoreVerdict(overall: number): string {
 function fillerColor(count: number): string {
   if (count === 0) return "text-success";
   if (count <= 3) return "text-warning";
-  return "text-danger";
+  return "text-accent-soft";
 }
 
 function wpmColor(wpm: number): string {
-  if (wpm < 100) return "text-danger";
+  if (wpm < 100) return "text-accent-soft";
   if (wpm < 130) return "text-warning";
   if (wpm <= 150) return "text-success";
   return "text-warning";
@@ -234,7 +237,7 @@ export function ResultsReveal({
                 {score.hedging_phrases.map((phrase, i) => (
                   <span
                     key={i}
-                    className="bg-danger/15 text-danger text-sm font-bold px-4 py-2 rounded-full"
+                    className="bg-danger/15 text-accent-soft text-sm font-bold px-4 py-2 rounded-full"
                   >
                     &ldquo;{phrase}&rdquo;
                   </span>

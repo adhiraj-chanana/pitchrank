@@ -539,7 +539,7 @@ export function PitchClient({
 
             {status === "recorder-error" && (
               <div className="w-full max-w-md flex flex-col items-center gap-4 text-center">
-                <p className="text-danger font-bold text-sm">{error}</p>
+                <p className="text-accent-soft font-bold text-sm">{error}</p>
                 <motion.button
                   onClick={() => {
                     setError(null);
@@ -640,7 +640,7 @@ export function PitchClient({
 
             {(status === "upload-error" || status === "transcribe-error") && (
               <div className="w-full max-w-md flex flex-col items-center gap-4 text-center">
-                <p className="text-danger font-bold text-sm">{error}</p>
+                <p className="text-accent-soft font-bold text-sm">{error}</p>
                 <motion.button
                   onClick={retryPipeline}
                   whileHover={{ scale: 1.05 }}
@@ -668,7 +668,7 @@ export function PitchClient({
                   </span>
                 </div>
 
-                {error && <p className="text-sm font-bold text-danger">{error}</p>}
+                {error && <p className="text-sm font-bold text-accent-soft">{error}</p>}
 
                 <motion.button
                   onClick={handleFinalSubmit}

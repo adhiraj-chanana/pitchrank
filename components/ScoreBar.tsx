@@ -1,7 +1,10 @@
-function fillColor(percent: number): string {
-  if (percent < 40) return "bg-danger";
-  if (percent < 70) return "bg-warning";
-  return "bg-success";
+// text-background (dark ink) reads fine on the light warning/success
+// fills, but fails WCAG AA on bg-danger (#9C2B3C is too dark) — that one
+// needs the light foreground text instead.
+function fillColor(percent: number): { bg: string; badgeText: string } {
+  if (percent < 40) return { bg: "bg-danger", badgeText: "text-foreground" };
+  if (percent < 70) return { bg: "bg-warning", badgeText: "text-background" };
+  return { bg: "bg-success", badgeText: "text-background" };
 }
 
 export function ScoreBar({
@@ -30,7 +33,7 @@ export function ScoreBar({
       <div className="flex items-center justify-between mb-2">
         <span className="text-sm font-bold text-muted">{label}</span>
         <span
-          className={`text-xs font-black text-background px-2.5 py-0.5 rounded-full ${color}`}
+          className={`text-xs font-black px-2.5 py-0.5 rounded-full ${color.bg} ${color.badgeText}`}
         >
           {value}/{max}
         </span>
@@ -41,7 +44,7 @@ export function ScoreBar({
         }`}
       >
         <div
-          className={`h-full ${color} rounded-full ${start ? "animate-grow-bar" : ""}`}
+          className={`h-full ${color.bg} rounded-full ${start ? "animate-grow-bar" : ""}`}
           style={
             {
               "--target-width": `${percent}%`,

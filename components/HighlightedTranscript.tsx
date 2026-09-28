@@ -10,7 +10,7 @@ export function HighlightedTranscript({ text }: { text: string }) {
     <>
       {parts.map((part, i) =>
         i % 2 === 1 ? (
-          <span key={i} className="text-danger font-bold">
+          <span key={i} className="text-accent-soft font-bold">
             {part}
           </span>
         ) : (

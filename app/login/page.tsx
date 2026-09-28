@@ -102,7 +102,7 @@ export default function LoginPage() {
             />
           </div>
 
-          {error && <p className="text-sm font-bold text-danger">{error}</p>}
+          {error && <p className="text-sm font-bold text-accent-soft">{error}</p>}
 
           <motion.button
             type="submit"
