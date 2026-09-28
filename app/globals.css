@@ -200,15 +200,18 @@ body {
   }
 }
 
-/* Reduced-motion override for the boss's reveal-sequence pulse and the
-   score-breakdown bar fill, both driven by the new results-reveal
-   sequencing. !important sidesteps any Tailwind-utility-vs-globals.css
-   layer ordering ambiguity — an accessibility override should always win.
-   Both have a correct static end state without their animation (see
-   BossReaction and ScoreBar), so this is a pure no-motion fallback. */
+/* Reduced-motion override for every ambient/one-shot animate-* utility.
+   !important sidesteps any Tailwind-utility-vs-globals.css layer ordering
+   ambiguity — an accessibility override should always win. Each of these
+   is decorative motion on an element that's already correctly positioned
+   without it, so turning the animation off has no layout/content effect. */
 @media (prefers-reduced-motion: reduce) {
   .animate-boss-react,
-  .animate-grow-bar {
+  .animate-grow-bar,
+  .animate-float,
+  .animate-boss-float,
+  .animate-bubble-pulse,
+  .animate-glow-pulse {
     animation: none !important;
   }
 }
