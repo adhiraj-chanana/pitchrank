@@ -46,6 +46,7 @@ export default function RootLayout({
               toast:
                 "!bg-surface !border-2 !border-border !text-foreground !rounded-2xl !shadow-lg",
               title: "!font-bold !text-foreground",
+              description: "!text-muted !italic",
               icon: "!text-success",
             },
           }}

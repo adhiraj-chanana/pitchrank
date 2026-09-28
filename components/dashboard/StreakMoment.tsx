@@ -22,7 +22,17 @@ export function StreakMoment({
 }) {
   useEffect(() => {
     if (!justCompleted) return;
-    toast.success(`Day ${streak} streak saved`);
+
+    // Day 3 gets a lighter beat than the real 7/14/30 tier ceremonies —
+    // no modal, no confetti, just the same toast with a short boss line
+    // added. Display-only: no tier, unlock, or streak logic involved.
+    if (streak === 3) {
+      toast.success("Day 3 streak saved", {
+        description: 'Marcus: "Three in a row. Do not get comfortable."',
+      });
+    } else {
+      toast.success(`Day ${streak} streak saved`);
+    }
 
     // Drop the query param so refreshing or hitting back doesn't replay
     // the toast/count-up on every visit.
