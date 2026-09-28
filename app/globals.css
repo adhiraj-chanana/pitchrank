@@ -112,6 +112,42 @@ body {
   }
 }
 
+@keyframes celebration-pop {
+  from {
+    opacity: 0;
+    transform: translateY(10px) scale(0.94);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* Staged reveal for StreakCelebration's milestone/Day-3 modals: each group
+   pops in ~120ms after the last. Under reduced motion the elements have no
+   opacity/transform set at all outside this guard, so they're just visible
+   immediately with no animation. */
+@media (prefers-reduced-motion: no-preference) {
+  .celebration-pop-1,
+  .celebration-pop-2,
+  .celebration-pop-3,
+  .celebration-pop-4 {
+    animation: celebration-pop 0.4s ease-out both;
+  }
+  .celebration-pop-1 {
+    animation-delay: 0ms;
+  }
+  .celebration-pop-2 {
+    animation-delay: 120ms;
+  }
+  .celebration-pop-3 {
+    animation-delay: 240ms;
+  }
+  .celebration-pop-4 {
+    animation-delay: 360ms;
+  }
+}
+
 /* Scroll-reveal: default state is always fully visible (no JS, no motion
    preference, or an unsupporting browser all land here) — the "pending"
    (hidden) state only ever applies inside this guard, and only once
