@@ -4,6 +4,7 @@ import { Navbar } from "@/components/Navbar";
 import { Logo } from "@/components/Logo";
 import { ScoreBar } from "@/components/ScoreBar";
 import { HoverScale } from "@/components/motion/Hover";
+import { ScrollReveal } from "@/components/motion/ScrollReveal";
 import { PageBackground } from "@/components/PageBackground";
 
 const steps = [
@@ -118,16 +119,18 @@ export default function Home() {
                   I&apos;ve heard better pitches from interns.
                 </SpeechBubble>
 
-                <HoverScale scale={1.03} rotate={-1}>
-                  <Image
-                    src="/boss-landing.png"
-                    alt="The PitchRank boss, leaning in and ready to judge your pitch"
-                    width={1371}
-                    height={1147}
-                    className="w-full max-w-[560px] h-auto drop-shadow-2xl animate-float"
-                    priority
-                  />
-                </HoverScale>
+                <div className="hero-parallax">
+                  <HoverScale scale={1.03} rotate={-1}>
+                    <Image
+                      src="/boss-landing.png"
+                      alt="The PitchRank boss, leaning in and ready to judge your pitch"
+                      width={1371}
+                      height={1147}
+                      className="w-full max-w-[560px] h-auto drop-shadow-2xl animate-float"
+                      priority
+                    />
+                  </HoverScale>
+                </div>
               </div>
             </div>
           </div>
@@ -135,7 +138,7 @@ export default function Home() {
 
         {/* PAIN POINT */}
         <section className="w-full py-24 px-6">
-          <div className="max-w-3xl mx-auto text-center sm:text-left">
+          <ScrollReveal className="max-w-3xl mx-auto text-center sm:text-left">
             <h2 className="font-display font-bold text-3xl sm:text-5xl text-foreground text-balance">
               Have you ever been in the room and just&hellip; blanked?
             </h2>
@@ -150,7 +153,7 @@ export default function Home() {
               You don&apos;t get a second first impression. So get the first
               one right.
             </p>
-          </div>
+          </ScrollReveal>
         </section>
 
         {/* HOW IT WORKS */}
@@ -159,30 +162,32 @@ export default function Home() {
             How PitchRank works
           </h2>
 
-          <div className="relative max-w-4xl mx-auto mt-16 grid sm:grid-cols-3 gap-12 sm:gap-6">
+          <div className="relative max-w-4xl mx-auto mt-16">
             <div className="hidden sm:block absolute top-8 left-[16.66%] right-[16.66%] border-t-2 border-dashed border-border z-0" />
 
-            {steps.map((step, i) => (
-              <HoverScale key={step.title} scale={1.04} y={-6}>
-                <div className="relative z-10 flex flex-col items-center text-center">
-                  <div className="w-16 h-16 rounded-full bg-background text-foreground font-black text-xl flex items-center justify-center shadow-lg">
-                    {i + 1}
+            <ScrollReveal stagger className="grid sm:grid-cols-3 gap-12 sm:gap-6">
+              {steps.map((step, i) => (
+                <HoverScale key={step.title} scale={1.04} y={-6}>
+                  <div className="relative z-10 flex flex-col items-center text-center">
+                    <div className="w-16 h-16 rounded-full bg-background text-foreground font-black text-xl flex items-center justify-center shadow-lg">
+                      {i + 1}
+                    </div>
+                    <h3 className="mt-4 text-lg font-black text-foreground">
+                      {step.title}
+                    </h3>
+                    <p className="mt-2 text-sm text-muted font-medium leading-relaxed max-w-[240px]">
+                      {step.description}
+                    </p>
                   </div>
-                  <h3 className="mt-4 text-lg font-black text-foreground">
-                    {step.title}
-                  </h3>
-                  <p className="mt-2 text-sm text-muted font-medium leading-relaxed max-w-[240px]">
-                    {step.description}
-                  </p>
-                </div>
-              </HoverScale>
-            ))}
+                </HoverScale>
+              ))}
+            </ScrollReveal>
           </div>
         </section>
 
         {/* BOSS SECTION */}
         <section className="w-full py-24 px-6">
-          <div className="max-w-6xl mx-auto grid sm:grid-cols-2 gap-16 items-center">
+          <ScrollReveal className="max-w-6xl mx-auto grid sm:grid-cols-2 gap-16 items-center">
             <div className="flex justify-center">
               <div className="flex flex-col items-center">
                 <SpeechBubble className="mb-6 max-w-xs text-center">
@@ -223,7 +228,7 @@ export default function Home() {
                 ))}
               </p>
             </div>
-          </div>
+          </ScrollReveal>
         </section>
 
         {/* SCORE PREVIEW */}
@@ -232,7 +237,7 @@ export default function Home() {
             What your score looks like
           </h2>
 
-          <div className="max-w-xl mx-auto mt-14 bg-foreground rounded-3xl border-2 border-border shadow-2xl p-8">
+          <ScrollReveal className="max-w-xl mx-auto mt-14 bg-foreground rounded-3xl border-2 border-border shadow-2xl p-8">
             <div className="text-center">
               <div className="text-8xl font-black text-warning leading-none">
                 74
@@ -265,12 +270,12 @@ export default function Home() {
                 </p>
               </div>
             </div>
-          </div>
+          </ScrollReveal>
         </section>
 
         {/* STREAK */}
         <section className="w-full py-24 px-6">
-          <div className="max-w-4xl mx-auto text-center">
+          <ScrollReveal className="max-w-4xl mx-auto text-center">
             <span className="text-sm font-bold text-highlight uppercase tracking-wide">
               Built to keep you coming back
             </span>
@@ -299,12 +304,12 @@ export default function Home() {
               Every tier unlocks harder scenarios. By Expert, you&apos;re not
               practicing anymore — you&apos;re just good.
             </p>
-          </div>
+          </ScrollReveal>
         </section>
 
         {/* TESTIMONIALS */}
         <section className="w-full py-24 px-6">
-          <div className="max-w-5xl mx-auto grid sm:grid-cols-3 gap-6">
+          <ScrollReveal stagger className="max-w-5xl mx-auto grid sm:grid-cols-3 gap-6">
             {testimonials.map((t) => (
               <HoverScale key={t.author} scale={1.03} y={-6}>
                 <div className="bg-foreground rounded-2xl shadow-lg p-6 flex flex-col h-full">
@@ -317,25 +322,27 @@ export default function Home() {
                 </div>
               </HoverScale>
             ))}
-          </div>
+          </ScrollReveal>
         </section>
 
         {/* CTA */}
         <section className="w-full py-24 px-6 text-center">
-          <h2 className="font-display text-4xl sm:text-5xl font-bold text-foreground text-balance">
-            Ready to face the boss?
-          </h2>
-          <p className="mt-4 text-lg font-medium text-muted">
-            Your first scenario is waiting.
-          </p>
-          <HoverScale scale={1.05} className="inline-block mt-8">
-            <Link
-              href="/signup"
-              className="block text-lg font-bold bg-foreground hover:bg-accent-soft text-accent px-10 py-4 rounded-full shadow-lg transition-colors"
-            >
-              Start Training Free
-            </Link>
-          </HoverScale>
+          <ScrollReveal className="text-center">
+            <h2 className="font-display text-4xl sm:text-5xl font-bold text-foreground text-balance">
+              Ready to face the boss?
+            </h2>
+            <p className="mt-4 text-lg font-medium text-muted">
+              Your first scenario is waiting.
+            </p>
+            <HoverScale scale={1.05} className="inline-block mt-8">
+              <Link
+                href="/signup"
+                className="block text-lg font-bold bg-foreground hover:bg-accent-soft text-accent px-10 py-4 rounded-full shadow-lg transition-colors"
+              >
+                Start Training Free
+              </Link>
+            </HoverScale>
+          </ScrollReveal>
         </section>
       </main>
 
