@@ -1,13 +1,19 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { BossReaction } from "@/components/BossReaction";
 import { ScoreBar } from "@/components/ScoreBar";
+import { AnimatedNumber } from "@/components/motion/AnimatedNumber";
 import { HighlightedTranscript } from "@/components/HighlightedTranscript";
 import { PageBackground } from "@/components/PageBackground";
 import type { PitchScore } from "@/lib/types";
+
+// Score count-up duration — bars start right after it finishes, so the
+// two stay visually sequential instead of racing each other.
+const SCORE_COUNT_MS = 700;
+const BAR_STAGGER_MS = 80;
 
 function overallScoreColor(overall: number): string {
   if (overall < 50) return "text-danger";
@@ -48,6 +54,13 @@ export function ResultsReveal({
   isFirstEver?: boolean;
 }) {
   const [revealed, setRevealed] = useState(false);
+  const [barsStarted, setBarsStarted] = useState(false);
+
+  useEffect(() => {
+    if (!revealed) return;
+    const t = setTimeout(() => setBarsStarted(true), SCORE_COUNT_MS);
+    return () => clearTimeout(t);
+  }, [revealed]);
 
   return (
     <PageBackground contentClassName="min-h-screen px-6 py-12">
@@ -87,13 +100,14 @@ export function ResultsReveal({
           }`}
         >
           <div className="text-center py-4">
-            <div
+            <AnimatedNumber
+              value={score.overall}
+              start={revealed}
+              durationMs={SCORE_COUNT_MS}
               className={`text-9xl font-black leading-none ${overallScoreColor(
                 score.overall
               )}`}
-            >
-              {score.overall}
-            </div>
+            />
             <div className="text-muted font-bold mt-2 uppercase tracking-wide text-sm">
               Out of 100
             </div>
@@ -110,16 +124,48 @@ export function ResultsReveal({
               How Marcus scored each part
             </p>
             <div className="grid sm:grid-cols-2 gap-x-8 gap-y-5">
-              <ScoreBar variant="dark" label="Hook" value={score.dimensions.hook} />
-              <ScoreBar variant="dark" label="Clarity" value={score.dimensions.clarity} />
+              <ScoreBar
+                variant="dark"
+                label="Hook"
+                value={score.dimensions.hook}
+                start={barsStarted}
+                delayMs={0 * BAR_STAGGER_MS}
+              />
+              <ScoreBar
+                variant="dark"
+                label="Clarity"
+                value={score.dimensions.clarity}
+                start={barsStarted}
+                delayMs={1 * BAR_STAGGER_MS}
+              />
               <ScoreBar
                 variant="dark"
                 label="Confidence"
                 value={score.dimensions.confidence}
+                start={barsStarted}
+                delayMs={2 * BAR_STAGGER_MS}
               />
-              <ScoreBar variant="dark" label="Close" value={score.dimensions.close} />
-              <ScoreBar variant="dark" label="Filler" value={score.filler_penalty} />
-              <ScoreBar variant="dark" label="Pace" value={score.pace_score} />
+              <ScoreBar
+                variant="dark"
+                label="Close"
+                value={score.dimensions.close}
+                start={barsStarted}
+                delayMs={3 * BAR_STAGGER_MS}
+              />
+              <ScoreBar
+                variant="dark"
+                label="Filler"
+                value={score.filler_penalty}
+                start={barsStarted}
+                delayMs={4 * BAR_STAGGER_MS}
+              />
+              <ScoreBar
+                variant="dark"
+                label="Pace"
+                value={score.pace_score}
+                start={barsStarted}
+                delayMs={5 * BAR_STAGGER_MS}
+              />
             </div>
           </div>
 

@@ -9,11 +9,17 @@ export function ScoreBar({
   value,
   max = 10,
   variant = "light",
+  start = true,
+  delayMs = 0,
 }: {
   label: string;
   value: number;
   max?: number;
   variant?: "light" | "dark";
+  /** When false, the bar sits at 0% and waits — lets a parent stagger
+   * several bars instead of all animating in on mount. */
+  start?: boolean;
+  delayMs?: number;
 }) {
   const percent = Math.max(0, Math.min(100, (value / max) * 100));
   const color = fillColor(percent);
@@ -35,8 +41,17 @@ export function ScoreBar({
         }`}
       >
         <div
-          className={`h-full ${color} rounded-full animate-grow-bar`}
-          style={{ "--target-width": `${percent}%` } as React.CSSProperties}
+          className={`h-full ${color} rounded-full ${start ? "animate-grow-bar" : ""}`}
+          style={
+            {
+              "--target-width": `${percent}%`,
+              // The inline width is the real source of truth (correct even
+              // with no animation, e.g. reduced-motion); animate-grow-bar
+              // layers a CSS animation on top that overrides it in transit.
+              width: start ? `${percent}%` : "0%",
+              animationDelay: start ? `${delayMs}ms` : undefined,
+            } as React.CSSProperties
+          }
         />
       </div>
     </div>

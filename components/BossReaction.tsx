@@ -113,9 +113,14 @@ export function BossReaction({
 
     setDialogueDone(true);
     setIsReacting(true);
-    setTimeout(() => setIsReacting(false), REACT_SHAKE_MS);
-
-    onSequenceComplete?.();
+    // onSequenceComplete waits for the boss's pulse/shake to finish playing
+    // rather than firing at the same instant it starts, so a caller using
+    // it to sequence a reveal (see ResultsReveal) gets "pulse, then reveal"
+    // instead of both happening at once.
+    setTimeout(() => {
+      setIsReacting(false);
+      onSequenceComplete?.();
+    }, REACT_SHAKE_MS);
   }
 
   // Hover is a post-verdict flourish — it shouldn't cut into the typewriter
