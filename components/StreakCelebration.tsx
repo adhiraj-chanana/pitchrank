@@ -1,14 +1,17 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Image from "next/image";
 import { motion } from "framer-motion";
+import { FlameIcon } from "@/components/icons/FlameIcon";
+import { LightningIcon } from "@/components/icons/LightningIcon";
+import { CrownIcon } from "@/components/icons/CrownIcon";
 import type { Milestone } from "@/lib/types";
 
 const MILESTONE_CONTENT: Record<
   Milestone,
   {
-    emoji: string;
+    Icon: (props: { className?: string }) => React.JSX.Element;
     title: string;
     titleColor: string;
     subtitle: string;
@@ -18,9 +21,9 @@ const MILESTONE_CONTENT: Record<
   }
 > = {
   7: {
-    emoji: "🔥",
+    Icon: FlameIcon,
     title: "7 Day Streak!",
-    titleColor: "text-orange-500",
+    titleColor: "text-highlight",
     subtitle: "Intermediate tier unlocked",
     description:
       "You're no longer a beginner. Harder scenarios start tomorrow.",
@@ -28,9 +31,9 @@ const MILESTONE_CONTENT: Record<
     bossQuote: "Hm. You actually showed up.",
   },
   14: {
-    emoji: "⚡",
+    Icon: LightningIcon,
     title: "14 Day Streak!",
-    titleColor: "text-[#6600FF]",
+    titleColor: "text-accent",
     subtitle: "Advanced tier unlocked",
     description:
       "Panel interviews. Offer negotiations. The real stuff starts now.",
@@ -38,9 +41,9 @@ const MILESTONE_CONTENT: Record<
     bossQuote: "I'm starting to take you seriously.",
   },
   30: {
-    emoji: "👑",
+    Icon: CrownIcon,
     title: "30 Day Streak!",
-    titleColor: "text-yellow-500",
+    titleColor: "text-success",
     subtitle: "Expert tier unlocked",
     description:
       "30 days. You're in the top 1% of people who actually follow through.",
@@ -50,12 +53,12 @@ const MILESTONE_CONTENT: Record<
 };
 
 const CONFETTI_COLORS = [
-  "#6600FF",
-  "#715DF2",
-  "#f59e0b",
-  "#22c55e",
-  "#ef4444",
-  "#ec4899",
+  "#9C2B3C",
+  "#E3B23C",
+  "#7FB069",
+  "#F4EEE3",
+  "#7D2130",
+  "#C99A2E",
 ];
 const CONFETTI_COUNT = 20;
 
@@ -70,15 +73,15 @@ type ConfettiPiece = {
 
 function generateConfetti(): ConfettiPiece[] {
   return Array.from({ length: CONFETTI_COUNT }, () => {
-    const duration = 3 + Math.random() * 3;
+    const duration = 1.4 + Math.random() * 0.8;
     return {
       left: Math.random() * 100,
       size: 6 + Math.random() * 8,
       color: CONFETTI_COLORS[Math.floor(Math.random() * CONFETTI_COLORS.length)],
       duration,
-      // Negative delay starts each piece already mid-fall, so the burst
-      // doesn't look like it's all launching from the top at once.
-      delay: -Math.random() * duration,
+      // Small positive stagger so the burst doesn't launch as one flat
+      // sheet, but still reads as a single moment rather than a loop.
+      delay: Math.random() * 0.3,
       rounded: Math.random() > 0.5,
     };
   });
@@ -92,38 +95,56 @@ export function StreakCelebration({
   onDismiss: () => void;
 }) {
   const [confetti] = useState(generateConfetti);
+  const [reducedMotion, setReducedMotion] = useState(false);
   const content = MILESTONE_CONTENT[milestone];
 
+  useEffect(() => {
+    setReducedMotion(
+      window.matchMedia("(prefers-reduced-motion: reduce)").matches
+    );
+  }, []);
+
   return (
-    <div className="fixed inset-0 z-[100] bg-black/80 flex items-center justify-center p-6 overflow-hidden">
-      {confetti.map((piece, i) => (
-        <div
-          key={i}
-          className="absolute top-0 pointer-events-none"
-          style={{
-            left: `${piece.left}%`,
-            width: piece.size,
-            height: piece.size,
-            backgroundColor: piece.color,
-            borderRadius: piece.rounded ? "50%" : "2px",
-            animation: `confettiFall ${piece.duration}s linear ${piece.delay}s infinite`,
-          }}
-        />
-      ))}
+    <div
+      className="fixed inset-0 z-[100] bg-background/90 flex items-center justify-center px-6 overflow-hidden"
+      style={{
+        paddingTop: "max(1.5rem, env(safe-area-inset-top))",
+        paddingBottom: "max(1.5rem, env(safe-area-inset-bottom))",
+      }}
+    >
+      {!reducedMotion &&
+        confetti.map((piece, i) => (
+          <div
+            key={i}
+            className="absolute top-0 pointer-events-none"
+            style={{
+              left: `${piece.left}%`,
+              width: piece.size,
+              height: piece.size,
+              backgroundColor: piece.color,
+              borderRadius: piece.rounded ? "50%" : "2px",
+              animation: `confettiFall ${piece.duration}s linear ${piece.delay}s 1 forwards`,
+            }}
+          />
+        ))}
 
-      <div className="relative z-10 bg-white rounded-3xl shadow-2xl p-12 max-w-md w-full text-center">
-        <span className="text-7xl">{content.emoji}</span>
-        <h2 className={`mt-4 text-5xl font-black ${content.titleColor}`}>
-          {content.title}
-        </h2>
-        <p className="mt-2 text-lg font-bold text-foreground">
-          {content.subtitle}
-        </p>
-        <p className="mt-4 text-muted font-medium leading-relaxed">
-          {content.description}
-        </p>
+      <div className="relative z-10 bg-foreground rounded-3xl shadow-2xl p-12 max-w-md w-full text-center">
+        <div className="celebration-pop-1">
+          <content.Icon className={`w-16 h-16 mx-auto ${content.titleColor}`} />
+        </div>
+        <div className="celebration-pop-2">
+          <h2 className={`mt-4 font-display text-5xl font-bold ${content.titleColor}`}>
+            {content.title}
+          </h2>
+          <p className="mt-2 text-lg font-bold text-background">
+            {content.subtitle}
+          </p>
+          <p className="mt-4 text-muted font-medium leading-relaxed">
+            {content.description}
+          </p>
+        </div>
 
-        <div className="mt-8 flex flex-col items-center gap-3">
+        <div className="celebration-pop-3 mt-8 flex flex-col items-center gap-3">
           <Image
             src={content.bossImage}
             alt="The boss"
@@ -143,7 +164,7 @@ export function StreakCelebration({
           whileHover={{ scale: 1.03 }}
           whileTap={{ scale: 0.98 }}
           transition={{ type: "spring", stiffness: 400, damping: 20 }}
-          className="mt-8 w-full bg-[#6600FF] hover:bg-[#5500d6] text-white font-bold py-4 rounded-full shadow-lg transition-colors"
+          className="celebration-pop-4 mt-8 w-full bg-accent hover:bg-accent-hover text-foreground font-bold py-4 rounded-full shadow-lg transition-colors"
         >
           See my results
         </motion.button>

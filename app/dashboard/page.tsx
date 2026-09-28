@@ -4,27 +4,36 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { getOrCreateTodayScenario } from "@/lib/today-scenario";
 import { todayDateString } from "@/lib/date";
-import {
-  nextTierProgress,
-  streakProgressMessage,
-  tierForStreak,
-  TIER_LABELS,
-} from "@/lib/tiers";
+import { getRequestTimeZone } from "@/lib/timezone";
+import { streakProgressMessage, tierForStreak, TIER_LABELS } from "@/lib/tiers";
 import { bossStateForScore, BOSS_STATE_CONFIG } from "@/lib/boss";
 import { getMoodForDate } from "@/lib/marcusMood";
-import { Logo } from "@/components/Logo";
-import { LogoutButton } from "@/components/LogoutButton";
 import { MilestoneBanner } from "@/components/MilestoneBanner";
 import { PageBackground } from "@/components/PageBackground";
+import { AppHeader } from "@/components/AppHeader";
+import { FlameIcon } from "@/components/icons/FlameIcon";
+import { StreakMoment } from "@/components/dashboard/StreakMoment";
 import type { PitchAttempt, PitchScore } from "@/lib/types";
 
-function scoreBadgeColor(score: number): string {
-  if (score >= 75) return "bg-success";
-  if (score >= 50) return "bg-warning";
-  return "bg-danger";
-}
+// Supabase's internal fetch() calls are otherwise subject to Next's
+// default fetch cache even inside this dynamically-rendered route —
+// force-dynamic guarantees a fresh read of streak/attempt data on every
+// visit instead of an occasionally-stale cached one.
+export const dynamic = "force-dynamic";
 
-export default async function DashboardPage() {
+const TIER_MARKERS: { day: number; tier: "beginner" | "intermediate" | "advanced" | "expert" }[] = [
+  { day: 0, tier: "beginner" },
+  { day: 7, tier: "intermediate" },
+  { day: 14, tier: "advanced" },
+  { day: 30, tier: "expert" },
+];
+
+export default async function DashboardPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ justCompleted?: string }>;
+}) {
+  const { justCompleted } = await searchParams;
   const supabase = await createClient();
   const {
     data: { user },
@@ -41,9 +50,9 @@ export default async function DashboardPage() {
     .maybeSingle();
 
   const currentStreak = streakRow?.current_streak ?? 0;
-  const progress = nextTierProgress(currentStreak);
 
-  const today = todayDateString();
+  const timeZone = await getRequestTimeZone();
+  const today = todayDateString(timeZone);
   const { data: todayAttempt } = await supabase
     .from("pitch_attempts")
     .select("*")
@@ -51,7 +60,7 @@ export default async function DashboardPage() {
     .eq("date", today)
     .maybeSingle();
 
-  const scenario = await getOrCreateTodayScenario(user.id);
+  const scenario = await getOrCreateTodayScenario(user.id, undefined, timeZone);
 
   const { data: recentAttempts } = await supabase
     .from("pitch_attempts")
@@ -59,6 +68,13 @@ export default async function DashboardPage() {
     .eq("user_id", user.id)
     .order("date", { ascending: false })
     .limit(3);
+
+  const { count: attemptCount } = await supabase
+    .from("pitch_attempts")
+    .select("id", { count: "exact", head: true })
+    .eq("user_id", user.id);
+
+  const isNewUser = (attemptCount ?? 0) === 0;
 
   const name = (user.user_metadata?.name as string | undefined) ?? "there";
 
@@ -80,203 +96,177 @@ export default async function DashboardPage() {
           />
         )}
 
-        <header className="w-full border-b border-white/10">
-          <div className="flex items-center justify-between px-6 py-6 sm:px-10 max-w-4xl mx-auto w-full">
-            <Logo href="/dashboard" theme="light" />
-            <div className="flex items-center gap-6">
-              <Link
-                href="/history"
-                className="text-sm font-bold text-white/60 hover:text-white transition-colors"
-              >
-                History
-              </Link>
-              <Link
-                href="/feedback"
-                className="text-sm font-bold text-white/60 hover:text-white transition-colors"
-              >
-                Feedback
-              </Link>
-              <Link
-                href="/about"
-                className="text-sm font-bold text-white/60 hover:text-white transition-colors"
-              >
-                About
-              </Link>
-              <LogoutButton className="text-sm font-bold text-white/60 hover:text-white transition-colors" />
-            </div>
-          </div>
-        </header>
+        <AppHeader
+          links={[
+            { href: "/history", label: "History" },
+            { href: "/feedback", label: "Feedback" },
+            { href: "/about", label: "About" },
+          ]}
+        />
 
-        <div className="border-b border-white/10 px-6 py-5 sm:px-10 mb-8">
-          <div className="max-w-4xl mx-auto w-full flex items-center justify-between gap-4">
-            <p className="text-white font-black text-lg sm:text-xl">
-              Good morning, {name}
-            </p>
-            <div className="flex items-center gap-3 shrink-0">
-              <div className="hidden sm:block bg-white rounded-xl shadow-lg px-3 py-1.5">
-                <p className="text-xs font-bold text-[#6600FF] whitespace-nowrap">
-                  Don&apos;t break your streak.
+        <main className="max-w-2xl mx-auto px-6 pb-20 pt-6">
+          {isNewUser && (
+            <div className="mb-8 flex items-start gap-4 border-b border-border pb-6">
+              <Image
+                src="/boss/boss-interested.png"
+                alt="Marcus"
+                width={56}
+                height={56}
+                className="w-14 h-14 rounded-full object-cover border-2 border-border shrink-0"
+              />
+              <div>
+                <p className="font-display text-lg font-bold text-foreground">
+                  Marcus is expecting you.
+                </p>
+                <p className="mt-1 text-sm text-muted font-medium leading-relaxed">
+                  He&apos;s a skeptical VC who has heard every pitch in the
+                  book. Record today&apos;s scenario below and find out what
+                  he really thinks.
                 </p>
               </div>
-              <Image
-                src="/boss/boss-dismissive.png"
-                alt="The boss, watching your streak"
-                width={40}
-                height={40}
-                className="w-10 h-10 rounded-full object-cover border-2 border-white shadow-lg"
-              />
             </div>
-          </div>
-        </div>
+          )}
 
-        <main className="max-w-4xl mx-auto px-6 pb-20">
-        <div className="bg-white/5 border-[3px] border-white/10 rounded-3xl shadow-lg px-8 py-8 mb-8 flex flex-col sm:flex-row items-center gap-6 sm:gap-10">
-          <div className="flex items-center gap-3 shrink-0">
-            <span className="text-8xl leading-none">🔥</span>
-            <span className="text-8xl font-black text-orange-400 leading-none">
-              {currentStreak}
-            </span>
+          <p className="text-sm font-bold text-muted">Hey {name}</p>
+
+          <div className="mt-3 flex items-end gap-3">
+            <FlameIcon className="w-9 h-9 text-highlight shrink-0 mb-1" />
+            <StreakMoment
+              streak={currentStreak}
+              justCompleted={justCompleted === "1"}
+              className="font-display text-6xl font-bold text-foreground leading-none"
+            />
+            <span className="text-sm font-bold text-muted mb-2">day streak</span>
           </div>
-          <div className="w-full flex flex-col items-center sm:items-start gap-2">
-            <span className="text-xs font-black text-orange-400 uppercase tracking-widest">
-              Day streak
-            </span>
-            <p className="text-white font-bold text-center sm:text-left">
-              {streakProgressMessage(currentStreak)}
-            </p>
-            {progress.nextTier && progress.streakForNextTier !== null && (
-              <div className="w-full h-1.5 bg-white/10 border border-white/10 rounded-full overflow-hidden mt-1">
+          <p className="mt-2 text-foreground font-bold text-sm">
+            {streakProgressMessage(currentStreak)}
+          </p>
+
+          <div className="relative mt-6 h-1.5 bg-surface rounded-full">
+            <div
+              className="absolute inset-y-0 left-0 bg-highlight rounded-full transition-all"
+              style={{ width: `${Math.min(100, (currentStreak / 30) * 100)}%` }}
+            />
+            {TIER_MARKERS.map((t) => (
+              <div
+                key={t.tier}
+                className="absolute -top-1.5"
+                style={{ left: `${(t.day / 30) * 100}%` }}
+              >
                 <div
-                  className="h-full bg-orange-400 rounded-full transition-all"
-                  style={{
-                    width: `${Math.min(
-                      100,
-                      (currentStreak / progress.streakForNextTier) * 100
-                    )}%`,
-                  }}
+                  className={`w-4 h-4 rounded-full border-2 ${
+                    currentStreak >= t.day
+                      ? "bg-highlight border-highlight"
+                      : "bg-background border-border"
+                  }`}
                 />
               </div>
-            )}
+            ))}
           </div>
-        </div>
+          <div className="flex justify-between mt-3">
+            {TIER_MARKERS.map((t) => (
+              <span
+                key={t.tier}
+                className={`text-[10px] font-bold uppercase tracking-wide ${
+                  currentStreak >= t.day ? "text-foreground" : "text-muted"
+                }`}
+              >
+                {TIER_LABELS[t.tier]}
+              </span>
+            ))}
+          </div>
+          <p className="mt-3 text-xs text-muted font-medium">
+            One pitch a day. Miss a day and your streak resets.
+          </p>
 
-        <div className="bg-[#6600FF] rounded-2xl shadow-lg p-6 mb-8">
-          <div className="flex items-center justify-between mb-4">
-            <span className="text-xs uppercase tracking-widest text-white/60 font-black">
-              Today&apos;s mission
+          <div className="mt-10 border-t border-border pt-6">
+            <div className="float-right ml-4 mb-2 w-24">
+              <Image
+                src={
+                  BOSS_STATE_CONFIG[
+                    bossStateForScore(
+                      (todayAttempt?.score as PitchScore | null)?.overall ?? 60
+                    )
+                  ].image
+                }
+                alt="Marcus"
+                width={96}
+                height={96}
+                className="w-24 h-24 rounded-full object-cover border-2 border-border"
+              />
+              <p className="mt-2 text-xs italic text-muted leading-snug">
+                {mood.emoji} &ldquo;{mood.description}&rdquo;
+              </p>
+            </div>
+
+            <span className="text-xs font-bold text-highlight uppercase tracking-wide">
+              Today&apos;s scenario
             </span>
-            <span className="text-xs uppercase tracking-wide text-[#6600FF] font-bold bg-white rounded-full px-3 py-1">
-              {scenario.tier}
-            </span>
-          </div>
-          <h2 className="text-2xl font-black text-white mb-2">
-            {scenario.title}
-          </h2>
-          <p className="text-sm text-white/60 italic mb-2">
-            {mood.emoji} Marcus is {mood.name} today — {mood.description}
-          </p>
-          <p className="text-sm text-white/60 font-medium mb-4 leading-relaxed">
-            {scenario.context}
-          </p>
-          <div className="bg-[#001220]/40 rounded-xl p-4 mb-6">
-            <p className="text-white italic font-medium leading-relaxed">
-              <span className="text-2xl font-black text-[#715DF2] align-top mr-1">
-                &ldquo;
-              </span>
-              {scenario.prompt}
-              <span className="text-2xl font-black text-[#715DF2] align-top ml-1">
-                &rdquo;
-              </span>
+            <h1 className="font-display text-2xl sm:text-3xl font-bold text-foreground leading-tight mt-1">
+              {scenario.title}
+            </h1>
+            <p className="mt-3 text-foreground font-medium leading-relaxed text-sm">
+              {scenario.context}
             </p>
+            <p className="mt-4 italic text-foreground font-medium leading-relaxed border-l-2 border-highlight pl-3">
+              &ldquo;{scenario.prompt}&rdquo;
+            </p>
+
+            <div className="clear-both" />
           </div>
 
           {todayAttempt ? (
-            <div className="flex items-center justify-between bg-[#001220]/40 rounded-2xl p-4">
+            <div className="mt-8 flex items-center justify-between border-t border-b border-border py-4">
               <div>
-                <div className="text-sm font-bold text-white/60">
-                  Today&apos;s score
-                </div>
-                <div className="text-2xl font-black text-white">
+                <div className="text-xs font-bold text-muted">Today&apos;s score</div>
+                <div className="text-2xl font-black text-foreground">
                   {(todayAttempt.score as PitchScore | null)?.overall ?? "—"}
                 </div>
               </div>
-              <div className="text-sm font-bold text-white/60">
-                Come back tomorrow 👋
-              </div>
+              <span className="text-xs font-bold text-muted">Come back tomorrow</span>
             </div>
           ) : (
             <Link
               href="/pitch"
-              className="block w-full text-center bg-white hover:bg-[#f2e9ff] text-[#6600FF] font-bold py-4 rounded-full shadow-lg transition-all hover:scale-105"
+              className="mt-8 block w-full text-center bg-accent hover:bg-accent-hover text-foreground font-bold py-4 rounded-full shadow-lg transition-colors"
             >
               Start Recording
             </Link>
           )}
-        </div>
 
-        <div>
-          <h2 className="text-lg font-black text-white mb-4">
-            Recent battles
-          </h2>
-          {recentAttempts && recentAttempts.length > 0 ? (
-            <div className="flex flex-col gap-3">
-              {(
+          <div className="mt-10">
+            <p className="text-xs font-bold text-muted uppercase tracking-wide border-b border-border pb-2 mb-1">
+              Recent battles
+            </p>
+            {recentAttempts && recentAttempts.length > 0 ? (
+              (
                 recentAttempts as (PitchAttempt & {
                   scenarios: { title: string } | null;
                 })[]
-              ).map((attempt) => {
-                const attemptScore = attempt.score?.overall ?? 0;
-                const bossImage =
-                  BOSS_STATE_CONFIG[bossStateForScore(attemptScore)].image;
-                return (
-                  <Link
-                    key={attempt.id}
-                    href={`/results?attemptId=${attempt.id}`}
-                    className="flex items-center justify-between gap-4 bg-white/5 border-2 border-white/10 rounded-2xl px-5 py-4 shadow-lg hover:bg-white/10 transition-colors cursor-pointer"
-                  >
-                    <div className="flex items-center gap-4 min-w-0">
-                      <Image
-                        src={bossImage}
-                        alt=""
-                        width={40}
-                        height={40}
-                        className="w-10 h-10 rounded-full object-cover border-2 border-white/10 shrink-0"
-                      />
-                      <div className="min-w-0">
-                        <div className="text-white font-bold truncate">
-                          {attempt.scenarios?.title ?? "Scenario"}
-                        </div>
-                        <div className="text-xs font-medium text-white/50 mt-0.5">
-                          {attempt.date}
-                        </div>
-                      </div>
+              ).map((attempt, i) => (
+                <Link
+                  key={attempt.id}
+                  href={`/results?attemptId=${attempt.id}`}
+                  className="flex items-center gap-4 py-3 border-b border-border"
+                >
+                  <span className="text-xs font-bold text-muted w-4">{i + 1}</span>
+                  <div className="flex-1 min-w-0">
+                    <div className="text-sm font-bold text-foreground truncate">
+                      {attempt.scenarios?.title ?? "Scenario"}
                     </div>
-                    <div
-                      className={`w-12 h-12 shrink-0 flex items-center justify-center rounded-full text-white font-black ${scoreBadgeColor(
-                        attemptScore
-                      )}`}
-                    >
-                      {attempt.score?.overall ?? "—"}
-                    </div>
-                  </Link>
-                );
-              })}
-            </div>
-          ) : (
-            <div className="flex items-center gap-4 bg-white/5 border-2 border-white/10 rounded-2xl px-5 py-6 shadow-lg">
-              <Image
-                src="/boss/boss-dismissive.png"
-                alt=""
-                width={40}
-                height={40}
-                className="w-10 h-10 rounded-full object-cover border-2 border-white/10 shrink-0"
-              />
-              <p className="text-white/60 font-medium text-sm">
+                    <div className="text-xs text-muted">{attempt.date}</div>
+                  </div>
+                  <span className="text-sm font-black text-highlight">
+                    {attempt.score?.overall ?? "—"}
+                  </span>
+                </Link>
+              ))
+            ) : (
+              <p className="py-4 text-sm text-muted font-medium">
                 No battles yet. What are you waiting for?
               </p>
-            </div>
-          )}
-        </div>
+            )}
+          </div>
         </main>
     </PageBackground>
   );

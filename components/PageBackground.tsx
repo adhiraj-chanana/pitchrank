@@ -13,12 +13,14 @@ export function PageBackground({
   contentClassName?: string;
 }) {
   return (
-    <div className="relative min-h-screen bg-[#001220]">
+    <div className="relative min-h-screen bg-background">
       <div className="fixed inset-0 z-0" aria-hidden="true">
+        {/* GradientWaves takes literal hex color props, not Tailwind classes,
+            so these mirror the background/accent/highlight tokens by hand. */}
         <GradientWaves
-          horizonColor="#001220"
-          waveColor="#6600FF"
-          crestColor="#715DF2"
+          horizonColor="#16130F"
+          waveColor="#9C2B3C"
+          crestColor="#E3B23C"
           speed={0.4}
           amplitude={2.5}
           waveScale={0.6}

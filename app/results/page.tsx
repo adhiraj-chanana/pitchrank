@@ -1,8 +1,13 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { todayDateString } from "@/lib/date";
+import { getRequestTimeZone } from "@/lib/timezone";
 import { ResultsReveal } from "./ResultsReveal";
 import type { PitchScore } from "@/lib/types";
+
+// See app/dashboard/page.tsx — Supabase's fetch calls can otherwise be
+// served stale by Next's default fetch cache even in a dynamic route.
+export const dynamic = "force-dynamic";
 
 export default async function ResultsPage({
   searchParams,
@@ -27,7 +32,7 @@ export default async function ResultsPage({
 
   const { data: attempt } = attemptId
     ? await query.eq("id", attemptId).maybeSingle()
-    : await query.eq("date", todayDateString()).maybeSingle();
+    : await query.eq("date", todayDateString(await getRequestTimeZone())).maybeSingle();
 
   if (!attempt) {
     redirect("/pitch");
@@ -39,6 +44,11 @@ export default async function ResultsPage({
     .eq("user_id", user.id)
     .maybeSingle();
 
+  const { count: attemptCount } = await supabase
+    .from("pitch_attempts")
+    .select("id", { count: "exact", head: true })
+    .eq("user_id", user.id);
+
   const scenarioTitle =
     (attempt as unknown as { scenarios: { title: string } | null }).scenarios
       ?.title ?? "Today's pitch";
@@ -49,6 +59,7 @@ export default async function ResultsPage({
       score={attempt.score as PitchScore}
       transcript={attempt.transcript ?? ""}
       streakCount={streakRow?.current_streak ?? 1}
+      isFirstEver={(attemptCount ?? 0) === 1}
     />
   );
 }

@@ -74,21 +74,21 @@ export default function HowItWorksPage() {
         <section className="relative px-6 sm:px-10 pt-20 pb-16 overflow-hidden">
           <div className="relative z-10 w-full max-w-6xl mx-auto grid sm:grid-cols-2 gap-16 items-center">
             <div className="text-center sm:text-left">
-              <span className="text-sm font-bold text-[#715DF2] uppercase tracking-wide">
+              <span className="text-sm font-bold text-highlight uppercase tracking-wide">
                 Meet Marcus
               </span>
-              <h1 className="mt-3 font-black text-4xl sm:text-6xl tracking-tight text-white text-balance">
+              <h1 className="font-display mt-3 font-bold text-4xl sm:text-6xl tracking-tight text-foreground text-balance">
                 He&apos;s heard 10,000 pitches. He&apos;s still not
                 impressed.
               </h1>
-              <p className="mt-6 text-lg text-white/70 font-medium max-w-xl mx-auto sm:mx-0 text-balance">
+              <p className="mt-6 text-lg text-muted font-medium max-w-xl mx-auto sm:mx-0 text-balance">
                 Here&apos;s exactly how sixty seconds a day with him turns
                 you into someone who doesn&apos;t freeze up when it counts.
               </p>
               <HoverScale scale={1.05} className="inline-block mt-8">
                 <Link
                   href="/signup"
-                  className="block text-lg font-bold bg-[#6600FF] hover:bg-[#5500d6] text-white px-10 py-4 rounded-full shadow-lg transition-colors"
+                  className="block text-lg font-bold bg-accent hover:bg-accent-hover text-foreground px-10 py-4 rounded-full shadow-lg transition-colors"
                 >
                   Start Training Free
                 </Link>
@@ -112,22 +112,22 @@ export default function HowItWorksPage() {
 
         {/* HOW IT WORKS — DETAILED */}
         <section className="w-full py-24 px-6">
-          <h2 className="text-center font-black text-5xl sm:text-6xl text-white">
+          <h2 className="font-display text-center font-bold text-5xl sm:text-6xl text-foreground">
             How it actually works
           </h2>
 
           <div className="max-w-3xl mx-auto mt-16 flex flex-col gap-12">
             {stepsDetailed.map((step, i) => (
               <HoverScale key={step.title} scale={1.02} y={-4}>
-                <div className="flex gap-6 items-start rounded-2xl border-2 border-white/10 bg-white/5 p-6 sm:p-8">
-                  <div className="shrink-0 w-12 h-12 rounded-full bg-[#6600FF] text-white font-black text-xl flex items-center justify-center shadow-lg">
+                <div className="flex gap-6 items-start rounded-2xl border-2 border-border bg-surface p-6 sm:p-8">
+                  <div className="shrink-0 w-12 h-12 rounded-full bg-accent text-foreground font-black text-xl flex items-center justify-center shadow-lg">
                     {i + 1}
                   </div>
                   <div>
-                    <h3 className="text-xl font-black text-white">
+                    <h3 className="text-xl font-black text-foreground">
                       {step.title}
                     </h3>
-                    <p className="mt-2 text-white/70 font-medium leading-relaxed">
+                    <p className="mt-2 text-muted font-medium leading-relaxed">
                       {step.description}
                     </p>
                   </div>
@@ -140,10 +140,10 @@ export default function HowItWorksPage() {
         {/* WHY YOU NEED IT */}
         <section className="w-full py-24 px-6">
           <div className="max-w-3xl mx-auto text-center">
-            <span className="text-sm font-bold text-[#715DF2] uppercase tracking-wide">
+            <span className="text-sm font-bold text-highlight uppercase tracking-wide">
               Why it matters
             </span>
-            <h2 className="mt-3 font-black text-4xl sm:text-5xl text-white text-balance">
+            <h2 className="font-display mt-3 font-bold text-4xl sm:text-5xl text-foreground text-balance">
               Nobody prepares for the moment that actually matters.
             </h2>
           </div>
@@ -151,11 +151,11 @@ export default function HowItWorksPage() {
           <div className="max-w-5xl mx-auto mt-14 grid sm:grid-cols-3 gap-6">
             {reasons.map((reason) => (
               <HoverScale key={reason.title} scale={1.03} y={-6}>
-                <div className="h-full rounded-2xl border-2 border-white/10 bg-white/5 p-6">
-                  <h3 className="text-lg font-black text-white">
+                <div className="h-full rounded-2xl border-2 border-border bg-surface p-6">
+                  <h3 className="text-lg font-black text-foreground">
                     {reason.title}
                   </h3>
-                  <p className="mt-2 text-sm text-white/70 font-medium leading-relaxed">
+                  <p className="mt-2 text-sm text-muted font-medium leading-relaxed">
                     {reason.description}
                   </p>
                 </div>
@@ -166,18 +166,18 @@ export default function HowItWorksPage() {
 
         {/* FEATURES */}
         <section className="w-full py-24 px-6">
-          <h2 className="text-center font-black text-4xl sm:text-5xl text-white text-balance">
+          <h2 className="font-display text-center font-bold text-4xl sm:text-5xl text-foreground text-balance">
             What you actually get
           </h2>
 
           <div className="max-w-4xl mx-auto mt-14 grid sm:grid-cols-2 gap-6">
             {features.map((feature) => (
               <HoverScale key={feature.title} scale={1.02} y={-4}>
-                <div className="h-full rounded-2xl border-2 border-white/15 bg-white/5 p-6">
-                  <h3 className="text-lg font-black text-[#715DF2]">
+                <div className="h-full rounded-2xl border-2 border-border bg-surface p-6">
+                  <h3 className="text-lg font-black text-highlight">
                     {feature.title}
                   </h3>
-                  <p className="mt-2 text-sm text-white/70 font-medium leading-relaxed">
+                  <p className="mt-2 text-sm text-muted font-medium leading-relaxed">
                     {feature.description}
                   </p>
                 </div>
@@ -188,17 +188,17 @@ export default function HowItWorksPage() {
 
         {/* CTA */}
         <section className="w-full py-24 px-6 text-center">
-          <h2 className="text-4xl sm:text-5xl font-black text-white text-balance">
+          <h2 className="font-display text-4xl sm:text-5xl font-bold text-foreground text-balance">
             Marcus is waiting.
           </h2>
-          <p className="mt-4 text-lg font-medium text-white/70">
+          <p className="mt-4 text-lg font-medium text-muted">
             Your first scenario takes sixty seconds. Your excuse doesn&apos;t
             hold up much longer than that.
           </p>
           <HoverScale scale={1.05} className="inline-block mt-8">
             <Link
               href="/signup"
-              className="block text-lg font-bold bg-white hover:bg-[#f2e9ff] text-[#6600FF] px-10 py-4 rounded-full shadow-lg transition-colors"
+              className="block text-lg font-bold bg-foreground hover:bg-accent-soft text-accent px-10 py-4 rounded-full shadow-lg transition-colors"
             >
               Start Training Free
             </Link>
@@ -207,13 +207,13 @@ export default function HowItWorksPage() {
       </main>
 
       {/* FOOTER */}
-      <footer className="w-full border-t border-white/10 px-6 py-8">
+      <footer className="w-full border-t border-border px-6 py-8">
         <div className="max-w-6xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
           <Logo theme="light" />
-          <p className="text-sm text-gray-400 font-medium text-center">
+          <p className="text-sm text-muted font-medium text-center">
             Built for people tired of winging it
           </p>
-          <p className="text-sm text-gray-400 font-medium">
+          <p className="text-sm text-muted font-medium">
             © {new Date().getFullYear()} PitchRank
           </p>
         </div>

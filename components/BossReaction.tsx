@@ -17,9 +17,9 @@ const LINE_PAUSE_MS = 600;
 const REACT_SHAKE_MS = 600;
 
 const LINE_STYLES = [
-  "text-sm text-white/60 italic font-medium",
-  "text-lg text-white font-bold",
-  "text-2xl font-black text-white",
+  "text-sm text-muted italic font-medium",
+  "text-lg text-foreground font-bold",
+  "text-2xl font-black text-foreground",
 ];
 
 const HOVER_QUOTES = [
@@ -113,21 +113,28 @@ export function BossReaction({
 
     setDialogueDone(true);
     setIsReacting(true);
-    setTimeout(() => setIsReacting(false), REACT_SHAKE_MS);
-
-    onSequenceComplete?.();
+    // onSequenceComplete waits for the boss's pulse/shake to finish playing
+    // rather than firing at the same instant it starts, so a caller using
+    // it to sequence a reveal (see ResultsReveal) gets "pulse, then reveal"
+    // instead of both happening at once.
+    setTimeout(() => {
+      setIsReacting(false);
+      onSequenceComplete?.();
+    }, REACT_SHAKE_MS);
   }
 
   // Hover is a post-verdict flourish — it shouldn't cut into the typewriter
-  // sequence, so it's a no-op until the dialogue has finished.
-  function handleMouseEnter() {
-    if (!dialogueDone) return;
+  // sequence, so it's a no-op until the dialogue has finished. Gated to
+  // pointerType "mouse" so a tap on touch devices doesn't trigger it and
+  // get stuck on (no real pointerleave follows a tap).
+  function handlePointerEnter(e: React.PointerEvent) {
+    if (!dialogueDone || e.pointerType !== "mouse") return;
     setHoverQuote(HOVER_QUOTES[Math.floor(Math.random() * HOVER_QUOTES.length)]);
     setIsHovered(true);
   }
 
-  function handleMouseLeave() {
-    if (!dialogueDone) return;
+  function handlePointerLeave(e: React.PointerEvent) {
+    if (!dialogueDone || e.pointerType !== "mouse") return;
     setIsHovered(false);
   }
 
@@ -144,7 +151,7 @@ export function BossReaction({
 
   return (
     <div
-      className={`bg-white/5 border-[3px] ${config.borderColor} ${config.glow} shadow-lg rounded-3xl p-8 mb-6 flex flex-col items-center gap-6`}
+      className={`bg-surface border-[3px] ${config.borderColor} ${config.glow} shadow-lg rounded-3xl p-8 mb-6 flex flex-col items-center gap-6`}
     >
       <div
         className="relative mx-auto w-full"
@@ -160,15 +167,15 @@ export function BossReaction({
         />
 
         <div
-          className="absolute -top-12 left-1/2 -translate-x-1/2 z-20 bg-white rounded-xl shadow-lg px-4 py-2 whitespace-nowrap"
+          className="absolute -top-12 left-1/2 -translate-x-1/2 z-20 bg-foreground rounded-xl shadow-lg px-4 py-2 whitespace-nowrap"
           style={{
             opacity: isHovered ? 1 : 0,
             transition: "opacity 200ms ease-out",
             pointerEvents: "none",
           }}
         >
-          <p className="text-xs font-bold text-foreground">{hoverQuote}</p>
-          <div className="absolute -bottom-1.5 left-1/2 -translate-x-1/2 w-3 h-3 bg-white rotate-45" />
+          <p className="text-xs font-bold text-background">{hoverQuote}</p>
+          <div className="absolute -bottom-1.5 left-1/2 -translate-x-1/2 w-3 h-3 bg-foreground rotate-45" />
         </div>
 
         <Image
@@ -176,8 +183,8 @@ export function BossReaction({
           alt={imageAlt}
           width={300}
           height={300}
-          onMouseEnter={handleMouseEnter}
-          onMouseLeave={handleMouseLeave}
+          onPointerEnter={handlePointerEnter}
+          onPointerLeave={handlePointerLeave}
           className={`relative z-10 w-full h-auto rounded-2xl ${imageAnimClass}`}
           style={BOSS_IMAGE_MASK}
           priority

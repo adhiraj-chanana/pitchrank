@@ -3,12 +3,22 @@
 @tailwind utilities;
 
 html {
-  color-scheme: light;
+  color-scheme: dark;
+  /* Suppresses the gray tap-flash rectangle touch browsers draw on tap;
+     real tap feedback is handled per-element (framer-motion whileTap, etc). */
+  -webkit-tap-highlight-color: transparent;
 }
 
 body {
-  color: #111827;
-  background: #fafafa;
+  color: #F4EEE3;
+  background: #16130F;
+  /* Removes the ~300ms tap delay and double-tap-to-zoom on touch browsers. */
+  touch-action: manipulation;
+}
+
+::selection {
+  background: #9C2B3C;
+  color: #F4EEE3;
 }
 
 @keyframes fade-in-up {
@@ -93,6 +103,119 @@ body {
   }
 }
 
+@keyframes hero-parallax-move {
+  from {
+    transform: translateY(-24px);
+  }
+  to {
+    transform: translateY(24px);
+  }
+}
+
+@keyframes celebration-pop {
+  from {
+    opacity: 0;
+    transform: translateY(10px) scale(0.94);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* Staged reveal for StreakCelebration's milestone/Day-3 modals: each group
+   pops in ~120ms after the last. Under reduced motion the elements have no
+   opacity/transform set at all outside this guard, so they're just visible
+   immediately with no animation. */
+@media (prefers-reduced-motion: no-preference) {
+  .celebration-pop-1,
+  .celebration-pop-2,
+  .celebration-pop-3,
+  .celebration-pop-4 {
+    animation: celebration-pop 0.4s ease-out both;
+  }
+  .celebration-pop-1 {
+    animation-delay: 0ms;
+  }
+  .celebration-pop-2 {
+    animation-delay: 120ms;
+  }
+  .celebration-pop-3 {
+    animation-delay: 240ms;
+  }
+  .celebration-pop-4 {
+    animation-delay: 360ms;
+  }
+}
+
+/* Scroll-reveal: default state is always fully visible (no JS, no motion
+   preference, or an unsupporting browser all land here) — the "pending"
+   (hidden) state only ever applies inside this guard, and only once
+   ScrollReveal's IntersectionObserver adds the class client-side. */
+@media (prefers-reduced-motion: no-preference) {
+  .scroll-reveal-pending {
+    opacity: 0;
+    transform: translateY(24px);
+  }
+
+  .scroll-reveal-visible {
+    opacity: 1;
+    transform: translateY(0);
+    transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+  }
+
+  .scroll-reveal-pending.scroll-reveal-stagger > * {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+
+  .scroll-reveal-visible.scroll-reveal-stagger > * {
+    opacity: 1;
+    transform: translateY(0);
+    transition: opacity 0.5s ease-out, transform 0.5s ease-out;
+  }
+
+  .scroll-reveal-stagger > *:nth-child(1) {
+    transition-delay: 0ms;
+  }
+  .scroll-reveal-stagger > *:nth-child(2) {
+    transition-delay: 120ms;
+  }
+  .scroll-reveal-stagger > *:nth-child(3) {
+    transition-delay: 240ms;
+  }
+  .scroll-reveal-stagger > *:nth-child(4) {
+    transition-delay: 360ms;
+  }
+
+  /* CSS-only scroll-driven parallax — no JS at all. Only runs where the
+     browser supports scroll-timelines; everything else keeps the boss
+     image static, which is a perfectly fine fallback for a "subtle" effect. */
+  @supports (animation-timeline: view()) {
+    .hero-parallax {
+      animation: hero-parallax-move linear;
+      animation-timeline: view();
+      animation-range: entry 0% cover 100%;
+    }
+  }
+}
+
+/* Reduced-motion override for every ambient/one-shot animate-* utility.
+   !important sidesteps any Tailwind-utility-vs-globals.css layer ordering
+   ambiguity — an accessibility override should always win. Each of these
+   is decorative motion on an element that's already correctly positioned
+   without it, so turning the animation off has no layout/content effect. */
+@media (prefers-reduced-motion: reduce) {
+  .animate-boss-react,
+  .animate-grow-bar,
+  .animate-float,
+  .animate-boss-float,
+  .animate-bubble-pulse,
+  .animate-glow-pulse {
+    animation: none !important;
+  }
+}
+
 @layer utilities {
   .text-balance {
     text-wrap: balance;
@@ -120,5 +243,13 @@ body {
 
   .animate-glow-pulse {
     animation: glowPulse 2s ease-in-out infinite;
+  }
+
+  .pt-safe {
+    padding-top: env(safe-area-inset-top);
+  }
+
+  .pb-safe {
+    padding-bottom: env(safe-area-inset-bottom);
   }
 }

@@ -26,14 +26,14 @@ export function MilestoneBanner({
   }
 
   return (
-    <div className="bg-[#6600FF] px-6 py-3 flex items-center justify-center gap-4">
-      <p className="text-white font-bold text-sm text-center">
+    <div className="bg-accent px-6 py-3 flex items-center justify-center gap-4">
+      <p className="text-foreground font-bold text-sm text-center">
         🎉 You unlocked {tierLabel} tier today!
       </p>
       <button
         onClick={handleDismiss}
         aria-label="Dismiss"
-        className="shrink-0 text-white/80 hover:text-white font-black text-lg leading-none"
+        className="shrink-0 -m-3.5 p-3.5 text-muted hover:text-foreground font-black text-lg leading-none"
       >
         ×
       </button>

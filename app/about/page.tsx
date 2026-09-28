@@ -1,9 +1,8 @@
 import Image from "next/image";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
-import { Logo } from "@/components/Logo";
-import { LogoutButton } from "@/components/LogoutButton";
 import { PageBackground } from "@/components/PageBackground";
+import { AppHeader } from "@/components/AppHeader";
 
 export default async function AboutPage() {
   const supabase = await createClient();
@@ -17,47 +16,28 @@ export default async function AboutPage() {
 
   return (
     <PageBackground>
-      <header className="w-full border-b border-white/10">
-        <div className="flex items-center justify-between px-6 py-6 sm:px-10 max-w-4xl mx-auto w-full">
-          <Logo href="/dashboard" theme="light" />
-          <div className="flex items-center gap-6">
-            <a
-              href="/dashboard"
-              className="text-sm font-bold text-white/60 hover:text-white transition-colors"
-            >
-              Dashboard
-            </a>
-            <a
-              href="/history"
-              className="text-sm font-bold text-white/60 hover:text-white transition-colors"
-            >
-              History
-            </a>
-            <a
-              href="/feedback"
-              className="text-sm font-bold text-white/60 hover:text-white transition-colors"
-            >
-              Feedback
-            </a>
-            <LogoutButton className="text-sm font-bold text-white/60 hover:text-white transition-colors" />
-          </div>
-        </div>
-      </header>
+      <AppHeader
+        links={[
+          { href: "/dashboard", label: "Dashboard" },
+          { href: "/history", label: "History" },
+          { href: "/feedback", label: "Feedback" },
+        ]}
+      />
 
       <main className="max-w-3xl mx-auto px-6 py-8 pb-20">
-        <h1 className="font-black text-3xl text-white mb-2">
+        <h1 className="font-display font-bold text-3xl text-foreground mb-2">
           About PitchRank
         </h1>
-        <p className="text-white/60 font-medium mb-10">
+        <p className="text-muted font-medium mb-10">
           Most pitch advice is generic. Ours isn&apos;t.
         </p>
 
         <div className="flex flex-col gap-8">
           <section>
-            <h2 className="text-sm font-black text-[#715DF2] uppercase tracking-wide mb-2">
+            <h2 className="text-sm font-black text-highlight uppercase tracking-wide mb-2">
               The problem
             </h2>
-            <p className="text-white/80 font-medium leading-relaxed">
+            <p className="text-muted font-medium leading-relaxed">
               You don&apos;t get better at pitching by reading about it. You
               get better by doing it badly, on purpose, in private, until
               it&apos;s not bad anymore. Most people never get that
@@ -68,10 +48,10 @@ export default async function AboutPage() {
           </section>
 
           <section>
-            <h2 className="text-sm font-black text-[#715DF2] uppercase tracking-wide mb-2">
+            <h2 className="text-sm font-black text-highlight uppercase tracking-wide mb-2">
               What this is
             </h2>
-            <p className="text-white/80 font-medium leading-relaxed">
+            <p className="text-muted font-medium leading-relaxed">
               PitchRank gives you that repetition. A new high-stakes scenario
               every day, sixty seconds to respond, no script and no
               do-overs. Your pitch gets scored across six dimensions — hook,
@@ -81,19 +61,19 @@ export default async function AboutPage() {
             </p>
           </section>
 
-          <section className="flex flex-col sm:flex-row items-center gap-6 rounded-2xl border-2 border-white/10 bg-white/5 p-6">
+          <section className="flex flex-col sm:flex-row items-center gap-6 rounded-2xl border-2 border-border bg-surface p-6">
             <Image
               src="/boss/boss-impressed.png"
               alt="Marcus, the PitchRank boss"
               width={100}
               height={100}
-              className="w-24 h-24 rounded-full object-cover border-2 border-white/10 shrink-0"
+              className="w-24 h-24 rounded-full object-cover border-2 border-border shrink-0"
             />
             <div>
-              <h2 className="text-sm font-black text-[#715DF2] uppercase tracking-wide mb-2">
+              <h2 className="text-sm font-black text-highlight uppercase tracking-wide mb-2">
                 Who&apos;s judging you
               </h2>
-              <p className="text-white/80 font-medium leading-relaxed">
+              <p className="text-muted font-medium leading-relaxed">
                 Marcus is the skeptical VC who&apos;s sat through 10,000
                 pitches and isn&apos;t easily impressed. He has good days
                 and bad days, he reacts to what you actually said, and he
@@ -104,10 +84,10 @@ export default async function AboutPage() {
           </section>
 
           <section>
-            <h2 className="text-sm font-black text-[#715DF2] uppercase tracking-wide mb-2">
+            <h2 className="text-sm font-black text-highlight uppercase tracking-wide mb-2">
               Why daily
             </h2>
-            <p className="text-white/80 font-medium leading-relaxed">
+            <p className="text-muted font-medium leading-relaxed">
               One pitch a day builds a streak, and the streak is the whole
               point. Confidence under pressure isn&apos;t something you read
               your way into — it&apos;s something you rep your way into.

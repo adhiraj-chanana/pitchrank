@@ -1,11 +1,15 @@
+import Image from "next/image";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
-import { Logo } from "@/components/Logo";
-import { LogoutButton } from "@/components/LogoutButton";
 import { HistoryChart } from "./HistoryChart";
 import { HoverScale } from "@/components/motion/Hover";
 import { PageBackground } from "@/components/PageBackground";
+import { AppHeader } from "@/components/AppHeader";
 import type { PitchAttempt } from "@/lib/types";
+
+// See app/dashboard/page.tsx — Supabase's fetch calls can otherwise be
+// served stale by Next's default fetch cache even in a dynamic route.
+export const dynamic = "force-dynamic";
 
 function scoreBadgeColor(score: number): string {
   if (score >= 75) return "bg-success";
@@ -39,40 +43,29 @@ export default async function HistoryPage() {
 
   return (
     <PageBackground>
-      <header className="w-full border-b border-white/10">
-        <div className="flex items-center justify-between px-6 py-6 sm:px-10 max-w-4xl mx-auto w-full">
-          <Logo href="/dashboard" theme="light" />
-          <div className="flex items-center gap-6">
-            <a
-              href="/dashboard"
-              className="text-sm font-bold text-white/60 hover:text-white transition-colors"
-            >
-              Dashboard
-            </a>
-            <a
-              href="/feedback"
-              className="text-sm font-bold text-white/60 hover:text-white transition-colors"
-            >
-              Feedback
-            </a>
-            <a
-              href="/about"
-              className="text-sm font-bold text-white/60 hover:text-white transition-colors"
-            >
-              About
-            </a>
-            <LogoutButton className="text-sm font-bold text-white/60 hover:text-white transition-colors" />
-          </div>
-        </div>
-      </header>
+      <AppHeader
+        links={[
+          { href: "/dashboard", label: "Dashboard" },
+          { href: "/feedback", label: "Feedback" },
+          { href: "/about", label: "About" },
+        ]}
+      />
 
       <main className="max-w-4xl mx-auto px-6 py-8 pb-20">
-        <h1 className="text-2xl font-black text-white mb-6">History</h1>
+        <h1 className="font-display text-2xl font-bold text-foreground mb-6">History</h1>
 
         {typedAttempts.length === 0 ? (
-          <div className="bg-white/5 border-2 border-white/10 rounded-2xl shadow-lg p-10 text-center">
-            <p className="text-white/60 font-medium">
-              No attempts yet. Record your first pitch to start your history.
+          <div className="bg-surface border-2 border-border rounded-2xl shadow-lg p-10 flex flex-col items-center gap-4 text-center">
+            <Image
+              src="/boss/boss-dismissive.png"
+              alt=""
+              width={40}
+              height={40}
+              className="w-10 h-10 rounded-full object-cover border-2 border-border"
+            />
+            <p className="text-muted font-medium">
+              No history yet. Marcus needs at least one pitch to judge before
+              there&apos;s anything to look back on.
             </p>
           </div>
         ) : (
@@ -82,17 +75,17 @@ export default async function HistoryPage() {
             <div className="flex flex-col gap-3 mt-8">
               {typedAttempts.map((attempt) => (
                 <HoverScale key={attempt.id} scale={1.02} y={-2}>
-                  <div className="flex items-center justify-between bg-white/5 border-2 border-white/10 rounded-2xl shadow-lg px-5 py-4">
+                  <div className="flex items-center justify-between bg-surface border-2 border-border rounded-2xl shadow-lg px-5 py-4">
                     <div>
-                      <div className="text-white font-bold">
+                      <div className="text-foreground font-bold">
                         {attempt.scenarios?.title ?? "Scenario"}
                       </div>
-                      <div className="text-xs font-medium text-white/50 mt-0.5">
+                      <div className="text-xs font-medium text-muted mt-0.5">
                         {attempt.date}
                       </div>
                     </div>
                     <div
-                      className={`w-12 h-12 shrink-0 flex items-center justify-center rounded-full text-white font-black ${scoreBadgeColor(
+                      className={`w-12 h-12 shrink-0 flex items-center justify-center rounded-full text-foreground font-black ${scoreBadgeColor(
                         attempt.score?.overall ?? 0
                       )}`}
                     >

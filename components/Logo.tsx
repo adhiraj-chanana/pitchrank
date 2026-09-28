@@ -27,17 +27,15 @@ export function Logo({
   return (
     <Link href={href} className="flex items-center gap-2.5 select-none">
       <span className="flex items-center justify-center w-8 h-8 rounded-lg bg-accent shrink-0">
-        <MicIcon className="w-4 h-4 text-white" />
+        <MicIcon className="w-4 h-4 text-foreground" />
       </span>
       <span
-        className={`text-xl font-black tracking-tight ${
-          isLight ? "text-white" : "text-foreground"
+        className={`font-display text-xl font-bold tracking-tight ${
+          isLight ? "text-foreground" : "text-background"
         }`}
       >
         Pitch
-        <span className={isLight ? "text-indigo-300" : "text-accent"}>
-          Rank
-        </span>
+        <span className="text-accent">Rank</span>
       </span>
     </Link>
   );

@@ -2,7 +2,12 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { getOrCreateTodayScenario } from "@/lib/today-scenario";
 import { todayDateString } from "@/lib/date";
+import { getRequestTimeZone } from "@/lib/timezone";
 import { PitchClient } from "./PitchClient";
+
+// See app/dashboard/page.tsx — Supabase's fetch calls can otherwise be
+// served stale by Next's default fetch cache even in a dynamic route.
+export const dynamic = "force-dynamic";
 
 export default async function PitchPage() {
   const supabase = await createClient();
@@ -14,20 +19,27 @@ export default async function PitchPage() {
     redirect("/login");
   }
 
+  const timeZone = await getRequestTimeZone();
+
   // Same global (not per-category) check as app/api/submit-pitch/route.ts —
   // see the note there before changing this when a second category ships.
   const { data: todayAttempt } = await supabase
     .from("pitch_attempts")
     .select("id")
     .eq("user_id", user.id)
-    .eq("date", todayDateString())
+    .eq("date", todayDateString(timeZone))
     .maybeSingle();
 
   if (todayAttempt) {
     redirect("/dashboard");
   }
 
-  const scenario = await getOrCreateTodayScenario(user.id);
+  const scenario = await getOrCreateTodayScenario(user.id, undefined, timeZone);
 
-  return <PitchClient scenario={scenario} />;
+  const { count: attemptCount } = await supabase
+    .from("pitch_attempts")
+    .select("id", { count: "exact", head: true })
+    .eq("user_id", user.id);
+
+  return <PitchClient scenario={scenario} isFirstRun={(attemptCount ?? 0) === 0} />;
 }

@@ -1,4 +1,5 @@
 import type { Config } from "tailwindcss";
+import plugin from "tailwindcss/plugin";
 
 const config: Config = {
   darkMode: "class",
@@ -9,19 +10,37 @@ const config: Config = {
   ],
   theme: {
     extend: {
+      fontFamily: {
+        display: ["var(--font-display)", "ui-sans-serif", "system-ui", "sans-serif"],
+      },
+      // 100vh doesn't account for mobile Safari/Chrome's dynamic address
+      // bar, so min-h-screen/h-screen can clip content or leave a gap as
+      // the toolbar shows/hides. 100dvh tracks the actual visible viewport.
+      minHeight: {
+        screen: "100dvh",
+      },
+      height: {
+        screen: "100dvh",
+      },
       colors: {
-        background: "#fafafa",
-        surface: "#ffffff",
-        border: "#e5e7eb",
-        foreground: "#111827",
-        muted: "#6b7280",
+        background: "#16130F",
+        surface: "#211C16",
+        border: "#3A3128",
+        foreground: "#F4EEE3",
+        muted: "#A89F92",
         accent: {
-          DEFAULT: "#4f46e5",
-          hover: "#4338ca",
+          DEFAULT: "#9C2B3C",
+          hover: "#7D2130",
+          soft: "#F5DCE0",
         },
-        success: "#22c55e",
-        warning: "#f59e0b",
-        danger: "#ef4444",
+        highlight: {
+          DEFAULT: "#E3B23C",
+          hover: "#C99A2E",
+          soft: "#F5E4BC",
+        },
+        success: "#7FB069",
+        warning: "#E3B23C",
+        danger: "#9C2B3C",
       },
       keyframes: {
         "pulse-ring": {
@@ -40,6 +59,13 @@ const config: Config = {
       },
     },
   },
-  plugins: [],
+  plugins: [
+    // Without this, touch devices apply :hover on tap and it sticks until
+    // the next tap elsewhere — buttons/links look permanently "hovered"
+    // after being pressed. Scopes hover: to devices that actually have one.
+    plugin(({ addVariant }) => {
+      addVariant("hover", "@media (hover: hover) and (pointer: fine)");
+    }),
+  ],
 };
 export default config;
