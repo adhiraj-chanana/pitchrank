@@ -1,8 +1,8 @@
 # PitchRank design pass — session handoff
 
-Branch: `design-pass` (20 commits ahead of `main`, clean working tree).
-Read this first, then `git log --oneline main..design-pass` for the full
-list if needed.
+Branch: `design-pass` (27 commits ahead of `main`, clean working tree,
+pushed to `origin/design-pass`). Read this first, then
+`git log --oneline main..design-pass` for the full list if needed.
 
 ## What's done
 
@@ -70,6 +70,50 @@ zoom-on-focus threshold); both hamburger buttons are 44px targets;
 BossReaction's hover flourish now checks `pointerType === "mouse"` so a
 tap can't trigger and strand it.
 
+**Motion (this session)** — Step 1: Apple-style scroll motion on the
+landing page only. `components/motion/ScrollReveal.tsx`
+(IntersectionObserver) fades+slides every section below the hero in on
+scroll, staggers "How it works" steps and testimonials via CSS
+transition-delay, and a CSS-only `@supports (animation-timeline: view())`
+scroll-driven parallax runs on the hero boss image — all progressively
+enhance server-rendered markup that has no hiding classes at all, so the
+page is fully visible with JS disabled, and everything is wrapped in
+`@media (prefers-reduced-motion: no-preference)`.
+
+Step 2, all 5 approved animations shipped:
+- **#1+#3** (sequenced together): `components/BossReaction.tsx` now
+  fires `onSequenceComplete` after its pulse/shake finishes instead of
+  at the same instant, so the results reveal goes dialogue → boss pulse
+  → score count-up (`components/motion/AnimatedNumber.tsx`) → breakdown
+  bars filling in a staggered sequence (`ScoreBar`'s new `start`/
+  `delayMs` props). ~2.7s total, under the ~3s budget.
+- **#2+#5** (paired as one moment): `components/dashboard/StreakMoment.tsx`
+  plays the streak digit counting up alongside a Sonner toast ("Day N
+  streak saved"), triggered by a `?justCompleted=1` param the results
+  page's "Back to Dashboard" link sets, stripped via
+  `history.replaceState` after firing. Added `sonner` as a dependency;
+  `<Toaster>` lives in `app/layout.tsx`, styled via Tailwind
+  `toastOptions.classNames` (no hardcoded hex), documented as a
+  third-party-animation exception like `GradientWaves`.
+- **#4a**: `StreakCelebration`'s milestone modal (7/14/30, thresholds
+  unchanged) now stages its reveal — icon, title block, boss+quote pop
+  in ~120ms apart — and confetti is a single front-loaded burst instead
+  of an infinite falling loop, skipped entirely under reduced motion.
+- **#4b**: a lighter Day-3 moment, display-only — `StreakMoment` swaps
+  in a Day-3-specific toast description (a short boss line) instead of
+  a separate ceremony. Pure branch on the already-computed streak value,
+  no schema/type/tier changes.
+
+All motion rules honored throughout: transform/opacity only (except the
+JS-driven number count-up, which is text content, not CSS motion),
+`prefers-reduced-motion` fallback via CSS guards (`.animate-boss-react`/
+`.animate-grow-bar` in `globals.css`, `!important` to sidestep any
+Tailwind-utility-vs-custom-layer ordering ambiguity) plus JS checks
+where inline styles can't be media-queried (confetti), `hover:` already
+globally scoped to `(hover: hover) and (pointer: fine)` from Stage 3, no
+hydration mismatches (every conditional initial-render value is either a
+plain `useState` constant or server-derived, never `Date.now()`/random).
+
 ## Open issues
 
 - **Upstream blocker, unresolved:** `impeccable`'s skill-bundle installer
@@ -87,21 +131,27 @@ tap can't trigger and strand it.
 - Not yet re-run: `npx impeccable detect app components` since the
   Stage 1 baseline — worth a fresh pass before the next visual stage to
   confirm no new anti-patterns crept in.
+- **Pre-existing reduced-motion gap, not fixed this session:** several
+  ambient animations predate this session and were left as-is since they
+  weren't part of the 5 approved motion items —
+  `animate-float`/`animate-boss-float`/`animate-bubble-pulse`/
+  `animate-glow-pulse` (globals.css) run regardless of
+  `prefers-reduced-motion`. Only `.animate-boss-react` and
+  `.animate-grow-bar` were brought into compliance, since the new
+  results-reveal sequencing depends on them directly. Worth a full
+  motion-audit pass, likely as part of Stage 6 or 7.
 
 ## Next steps (not started)
 
-- **Apple-style landing page scrolling** — scroll-driven reveals/pinning
-  on `app/page.tsx`, likely using the `emilkowalski/skills` animation
-  skills already installed (`.claude/skills/`, see `skills-lock.json`).
-- **Stage 5: motion** — a broader pass on transitions/micro-interactions
-  beyond the landing page (page transitions, list item entrances, etc).
-- **Stage 6: AI UX review** — a fresh AI-assisted review pass once
-  Stages 1–5 are in, likely re-running `impeccable detect` plus another
-  manual critique round given how much has changed since the Stage 1
-  baseline.
+- **Stage 6: AI UX review** — a fresh AI-assisted review pass now that
+  theme, dashboard, fixes 1–6, first-run, mobile, and motion are all in,
+  likely re-running `impeccable detect` plus another manual critique
+  round given how much has changed since the Stage 1 baseline.
 - **Stage 7: verify** — final end-to-end verification pass (build, lint,
   route smoke test, and likely a real mobile-device check given how much
-  of Stage 3 is only verifiable by eye on an actual notched device).
+  of Stage 3/motion is only verifiable by eye on an actual notched
+  device — scroll parallax, safe areas, the sequenced results reveal
+  timing, toast placement).
 
 Guardrails still in effect throughout: no changes to categories,
 scoring, or streak *computation* logic (the timezone fix changed how
