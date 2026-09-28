@@ -5,6 +5,10 @@ import { todayDateString } from "@/lib/date";
 import { getRequestTimeZone } from "@/lib/timezone";
 import { PitchClient } from "./PitchClient";
 
+// See app/dashboard/page.tsx — Supabase's fetch calls can otherwise be
+// served stale by Next's default fetch cache even in a dynamic route.
+export const dynamic = "force-dynamic";
+
 export default async function PitchPage() {
   const supabase = await createClient();
   const {

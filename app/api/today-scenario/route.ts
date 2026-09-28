@@ -3,6 +3,10 @@ import { createClient } from "@/lib/supabase/server";
 import { getOrCreateTodayScenario } from "@/lib/today-scenario";
 import { getRequestTimeZone } from "@/lib/timezone";
 
+// See app/dashboard/page.tsx — Supabase's fetch calls can otherwise be
+// served stale by Next's default fetch cache even in a dynamic route.
+export const dynamic = "force-dynamic";
+
 export async function GET() {
   const supabase = await createClient();
   const {

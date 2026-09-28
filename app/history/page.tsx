@@ -7,6 +7,10 @@ import { PageBackground } from "@/components/PageBackground";
 import { AppHeader } from "@/components/AppHeader";
 import type { PitchAttempt } from "@/lib/types";
 
+// See app/dashboard/page.tsx — Supabase's fetch calls can otherwise be
+// served stale by Next's default fetch cache even in a dynamic route.
+export const dynamic = "force-dynamic";
+
 function scoreBadgeColor(score: number): string {
   if (score >= 75) return "bg-success";
   if (score >= 50) return "bg-warning";

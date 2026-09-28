@@ -5,6 +5,10 @@ import { getRequestTimeZone } from "@/lib/timezone";
 import { ResultsReveal } from "./ResultsReveal";
 import type { PitchScore } from "@/lib/types";
 
+// See app/dashboard/page.tsx — Supabase's fetch calls can otherwise be
+// served stale by Next's default fetch cache even in a dynamic route.
+export const dynamic = "force-dynamic";
+
 export default async function ResultsPage({
   searchParams,
 }: {

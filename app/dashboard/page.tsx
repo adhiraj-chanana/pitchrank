@@ -15,6 +15,12 @@ import { FlameIcon } from "@/components/icons/FlameIcon";
 import { StreakMoment } from "@/components/dashboard/StreakMoment";
 import type { PitchAttempt, PitchScore } from "@/lib/types";
 
+// Supabase's internal fetch() calls are otherwise subject to Next's
+// default fetch cache even inside this dynamically-rendered route —
+// force-dynamic guarantees a fresh read of streak/attempt data on every
+// visit instead of an occasionally-stale cached one.
+export const dynamic = "force-dynamic";
+
 const TIER_MARKERS: { day: number; tier: "beginner" | "intermediate" | "advanced" | "expert" }[] = [
   { day: 0, tier: "beginner" },
   { day: 7, tier: "intermediate" },
