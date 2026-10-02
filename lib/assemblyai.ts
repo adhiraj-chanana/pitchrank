@@ -24,6 +24,28 @@ function apiKey(): string {
   return key;
 }
 
+// Used only by scripts/bench-latency.ts. Production always uploads via
+// Supabase storage (PitchClient.tsx) and passes that public URL instead —
+// this exists because benchmark runs have no authenticated user/session
+// for storage RLS, and AssemblyAI's own upload endpoint sidesteps that
+// entirely while still measuring a real "upload the audio somewhere"
+// latency rather than skipping that phase.
+export async function uploadAudioFile(buffer: Buffer): Promise<string> {
+  const res = await fetch(`${ASSEMBLYAI_BASE_URL}/upload`, {
+    method: "POST",
+    headers: { Authorization: apiKey() },
+    body: new Uint8Array(buffer),
+  });
+
+  if (!res.ok) {
+    const body = await res.text();
+    throw new Error(`AssemblyAI upload failed (${res.status}): ${body}`);
+  }
+
+  const data = (await res.json()) as { upload_url: string };
+  return data.upload_url;
+}
+
 export async function submitTranscription(audioUrl: string): Promise<string> {
   const res = await fetch(`${ASSEMBLYAI_BASE_URL}/transcript`, {
     method: "POST",

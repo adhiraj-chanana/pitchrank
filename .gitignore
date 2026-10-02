@@ -34,3 +34,14 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# benchmarks — inputs (may contain real recordings/transcripts) and
+# generated result dumps stay local; directory structure is kept via
+# .gitkeep so `benchmarks/audio`, `benchmarks/transcripts`, and
+# `benchmarks/results` still exist for a fresh clone.
+/benchmarks/audio/*
+!/benchmarks/audio/.gitkeep
+/benchmarks/transcripts/*
+!/benchmarks/transcripts/.gitkeep
+/benchmarks/results/*
+!/benchmarks/results/.gitkeep

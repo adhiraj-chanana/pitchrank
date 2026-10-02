@@ -1,0 +1,13 @@
+{
+  "_disclaimer": "PLACEHOLDER VALUES. Verify every number below against the current AssemblyAI pricing page (https://www.assemblyai.com/pricing) and the current Anthropic pricing page (https://www.anthropic.com/pricing) before trusting any cost estimate this produces. Prices change over time and vary by model/tier.",
+  "assemblyai": {
+    "_note": "Price per hour of audio transcribed, for the speech model this app requests (universal-3-5-pro, falls back to universal-2). Verify both model prices separately on the pricing page.",
+    "universal_pro_per_hour_usd": 0.27,
+    "universal_2_per_hour_usd": 0.12
+  },
+  "anthropic": {
+    "_note": "Price per 1,000,000 tokens for claude-haiku-4-5-20251001, the model both scoring calls use.",
+    "haiku_input_per_million_usd": 1.0,
+    "haiku_output_per_million_usd": 5.0
+  }
+}
