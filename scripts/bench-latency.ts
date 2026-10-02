@@ -7,8 +7,7 @@
 //
 // Run: npm run bench:latency
 
-import { config } from "dotenv";
-config({ path: ".env.local" });
+import "./_load-env";
 
 import { mkdirSync, readFileSync, readdirSync, writeFileSync } from "fs";
 import path from "path";
