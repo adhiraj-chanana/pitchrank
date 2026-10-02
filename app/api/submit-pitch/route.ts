@@ -6,6 +6,7 @@ import { bossStateForScore, FALLBACK_BOSS_DIALOGUE } from "@/lib/boss";
 import { todayDateString, previousDateString } from "@/lib/date";
 import { getRequestTimeZone } from "@/lib/timezone";
 import { getMoodForDate } from "@/lib/marcusMood";
+import { logPitchBenchmark, type TokenUsage } from "@/lib/benchmark";
 import type { Milestone, PitchScore } from "@/lib/types";
 
 export async function POST(request: Request) {
@@ -51,6 +52,18 @@ export async function POST(request: Request) {
     : [];
   const wpm: number = typeof body.wpm === "number" ? body.wpm : 0;
 
+  // Client-observed phases (upload, transcription) forwarded only for the
+  // benchmark log line below — never read for anything else.
+  const clientBenchmark = {
+    uploadMs: typeof body.benchmark?.uploadMs === "number" ? body.benchmark.uploadMs : 0,
+    transcribeSubmitMs:
+      typeof body.benchmark?.transcribeSubmitMs === "number" ? body.benchmark.transcribeSubmitMs : 0,
+    transcribeWaitMs:
+      typeof body.benchmark?.transcribeWaitMs === "number" ? body.benchmark.transcribeWaitMs : 0,
+    audioDurationSeconds:
+      typeof body.benchmark?.audioDurationSeconds === "number" ? body.benchmark.audioDurationSeconds : 0,
+  };
+
   if (!transcript || transcript.trim().length < 10) {
     return NextResponse.json(
       { error: "Transcript too short to score" },
@@ -64,16 +77,23 @@ export async function POST(request: Request) {
 
   const mood = getMoodForDate(new Date());
 
+  let scoringTokens: TokenUsage = { inputTokens: 0, outputTokens: 0 };
   let scoreWithoutDialogue;
+  const scoringStart = Date.now();
   try {
-    scoreWithoutDialogue = await scorePitch({
-      scenario,
-      transcript,
-      fillerCount,
-      fillerWords,
-      wpm,
-      moodTone: mood.dialogueTone,
-    });
+    scoreWithoutDialogue = await scorePitch(
+      {
+        scenario,
+        transcript,
+        fillerCount,
+        fillerWords,
+        wpm,
+        moodTone: mood.dialogueTone,
+      },
+      (usage) => {
+        scoringTokens = usage;
+      }
+    );
   } catch (err) {
     const message = err instanceof Error ? err.message : "Unknown error";
     return NextResponse.json(
@@ -81,6 +101,7 @@ export async function POST(request: Request) {
       { status: 502 }
     );
   }
+  const scoringCallMs = Date.now() - scoringStart;
 
   const moodAdjustedOverall = Math.min(
     100,
@@ -91,17 +112,25 @@ export async function POST(request: Request) {
 
   // Dialogue is flavor, not the core score — fall back rather than failing
   // the whole submission if Claude's second call has a hiccup.
+  let bossDialogueTokens: TokenUsage = { inputTokens: 0, outputTokens: 0 };
   let bossDialogue: string[];
+  const bossDialogueStart = Date.now();
   try {
-    bossDialogue = await generateBossDialogue({
-      overall: moodAdjustedOverall,
-      state: bossState,
-      transcript,
-      moodTone: mood.dialogueTone,
-    });
+    bossDialogue = await generateBossDialogue(
+      {
+        overall: moodAdjustedOverall,
+        state: bossState,
+        transcript,
+        moodTone: mood.dialogueTone,
+      },
+      (usage) => {
+        bossDialogueTokens = usage;
+      }
+    );
   } catch {
     bossDialogue = FALLBACK_BOSS_DIALOGUE[bossState];
   }
+  const bossDialogueCallMs = Date.now() - bossDialogueStart;
 
   const score: PitchScore = {
     ...scoreWithoutDialogue,
@@ -109,6 +138,8 @@ export async function POST(request: Request) {
     boss_dialogue: bossDialogue,
     mood: { name: mood.name, emoji: mood.emoji },
   };
+
+  const dbWritesStart = Date.now();
 
   const { data: attempt, error: insertError } = await supabase
     .from("pitch_attempts")
@@ -154,8 +185,35 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: streakError.message }, { status: 500 });
   }
 
+  const dbWritesMs = Date.now() - dbWritesStart;
+
   const milestone: Milestone | null =
     newStreak === 7 || newStreak === 14 || newStreak === 30 ? newStreak : null;
+
+  logPitchBenchmark({
+    timestamp: new Date().toISOString(),
+    attemptId: attempt.id,
+    audioDurationSeconds: clientBenchmark.audioDurationSeconds,
+    ms: {
+      audioUpload: clientBenchmark.uploadMs,
+      transcribeSubmit: clientBenchmark.transcribeSubmitMs,
+      transcribeWait: clientBenchmark.transcribeWaitMs,
+      scoringCall: scoringCallMs,
+      bossDialogueCall: bossDialogueCallMs,
+      dbWrites: dbWritesMs,
+      total:
+        clientBenchmark.uploadMs +
+        clientBenchmark.transcribeSubmitMs +
+        clientBenchmark.transcribeWaitMs +
+        scoringCallMs +
+        bossDialogueCallMs +
+        dbWritesMs,
+    },
+    tokens: {
+      scoring: scoringTokens,
+      bossDialogue: bossDialogueTokens,
+    },
+  });
 
   return NextResponse.json({
     attemptId: attempt.id,

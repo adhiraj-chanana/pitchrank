@@ -65,6 +65,9 @@ export type TranscribeStatusResponse =
       text: string;
       words_per_minute: number;
       filler_words: FillerWordsResult;
+      // Additive, benchmark-only field — forwarded to /api/submit-pitch
+      // so its BENCHMARK_LOGGING log line can report it. Unused otherwise.
+      audio_duration_seconds: number;
     };
 
 export type PitchAttempt = {

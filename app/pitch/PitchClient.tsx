@@ -91,6 +91,16 @@ export function PitchClient({
   const audioBlobRef = useRef<Blob | null>(null);
   const uploadPathRef = useRef<string>("");
   const transcriptIdRef = useRef<string>("");
+  // Benchmark-only timing, forwarded to /api/submit-pitch so its gated
+  // BENCHMARK_LOGGING log line can report phases that only the client
+  // observes directly (upload, transcription submit/wait). Never read by
+  // any UI or business logic — purely passed through for logging.
+  const benchmarkRef = useRef({
+    uploadMs: 0,
+    transcribeSubmitMs: 0,
+    transcribeWaitMs: 0,
+    audioDurationSeconds: 0,
+  });
 
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
@@ -288,6 +298,7 @@ export function PitchClient({
     const supabase = createClient();
 
     let publicUrl = "";
+    const uploadStart = Date.now();
     try {
       const {
         data: { user },
@@ -304,6 +315,7 @@ export function PitchClient({
       if (uploadError) throw uploadError;
 
       publicUrl = supabase.storage.from("pitch-recordings").getPublicUrl(path).data.publicUrl;
+      benchmarkRef.current.uploadMs = Date.now() - uploadStart;
     } catch (err) {
       setStatus("upload-error");
       setError(err instanceof Error ? err.message : "Upload failed.");
@@ -313,6 +325,7 @@ export function PitchClient({
     try {
       setStatus("transcribing");
 
+      const submitStart = Date.now();
       const startRes = await fetch("/api/transcribe", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -324,8 +337,12 @@ export function PitchClient({
       }
       const { transcript_id } = await startRes.json();
       transcriptIdRef.current = transcript_id;
+      benchmarkRef.current.transcribeSubmitMs = Date.now() - submitStart;
 
+      const waitStart = Date.now();
       const result = await pollTranscription(transcript_id);
+      benchmarkRef.current.transcribeWaitMs = Date.now() - waitStart;
+      benchmarkRef.current.audioDurationSeconds = result.audio_duration_seconds;
 
       if (uploadPathRef.current) {
         await supabase.storage.from("pitch-recordings").remove([uploadPathRef.current]);
@@ -364,6 +381,8 @@ export function PitchClient({
           fillerWords: fillerWords?.instances ?? [],
           wpm: wpm ?? 0,
           scenarioId: scenario.id,
+          // Benchmark-only — ignored unless BENCHMARK_LOGGING=true server-side.
+          benchmark: benchmarkRef.current,
         }),
       });
 

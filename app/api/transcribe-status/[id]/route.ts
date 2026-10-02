@@ -45,6 +45,7 @@ export async function GET(
       text: transcript.text ?? "",
       words_per_minute: wordsPerMinute,
       filler_words: extractFillerWords(words),
+      audio_duration_seconds: durationSeconds,
     };
     return NextResponse.json(body);
   } catch (err) {

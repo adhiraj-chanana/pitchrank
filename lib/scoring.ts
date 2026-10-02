@@ -1,6 +1,7 @@
 import Anthropic from "@anthropic-ai/sdk";
 import type { PitchScore, Scenario } from "@/lib/types";
 import type { BossState } from "@/lib/boss";
+import type { TokenUsage } from "@/lib/benchmark";
 
 const client = new Anthropic();
 
@@ -101,20 +102,31 @@ SCORING RULES:
 - hedging_phrases: List the actual phrases from their transcript that showed low confidence. Empty array if none.`;
 }
 
-export async function scorePitch(params: {
-  scenario: Pick<Scenario, "title" | "context" | "prompt">;
-  transcript: string;
-  fillerCount: number;
-  fillerWords: string[];
-  wpm: number;
-  moodTone: string;
-}): Promise<Omit<PitchScore, "boss_dialogue" | "mood">> {
+export async function scorePitch(
+  params: {
+    scenario: Pick<Scenario, "title" | "context" | "prompt">;
+    transcript: string;
+    fillerCount: number;
+    fillerWords: string[];
+    wpm: number;
+    moodTone: string;
+  },
+  // Benchmark-only side channel for token usage — never affects the
+  // request, the prompt, or the returned score shape. Omitted in normal
+  // production calls.
+  onUsage?: (usage: TokenUsage) => void
+): Promise<Omit<PitchScore, "boss_dialogue" | "mood">> {
   const message = await client.messages.create({
     model: "claude-haiku-4-5-20251001",
     max_tokens: 2048,
     tools: [SCORE_PITCH_TOOL],
     tool_choice: { type: "tool", name: "score_pitch" },
     messages: [{ role: "user", content: buildPrompt(params) }],
+  });
+
+  onUsage?.({
+    inputTokens: message.usage.input_tokens,
+    outputTokens: message.usage.output_tokens,
   });
 
   const toolUse = message.content.find(
@@ -177,18 +189,27 @@ THEIR PITCH:
 ${transcript}`;
 }
 
-export async function generateBossDialogue(params: {
-  overall: number;
-  state: BossState;
-  transcript: string;
-  moodTone: string;
-}): Promise<string[]> {
+export async function generateBossDialogue(
+  params: {
+    overall: number;
+    state: BossState;
+    transcript: string;
+    moodTone: string;
+  },
+  // Same benchmark-only side channel as scorePitch's onUsage.
+  onUsage?: (usage: TokenUsage) => void
+): Promise<string[]> {
   const message = await client.messages.create({
     model: "claude-haiku-4-5-20251001",
     max_tokens: 512,
     tools: [BOSS_DIALOGUE_TOOL],
     tool_choice: { type: "tool", name: "generate_boss_dialogue" },
     messages: [{ role: "user", content: buildBossDialoguePrompt(params) }],
+  });
+
+  onUsage?.({
+    inputTokens: message.usage.input_tokens,
+    outputTokens: message.usage.output_tokens,
   });
 
   const toolUse = message.content.find(
