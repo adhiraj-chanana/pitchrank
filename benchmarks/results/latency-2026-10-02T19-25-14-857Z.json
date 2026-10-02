@@ -1,0 +1,338 @@
+{
+  "generatedAt": "2026-10-02T19:25:14.847Z",
+  "runsPerFile": 3,
+  "files": [
+    "Long-good-01.m4a",
+    "Medium-bad-01.m4a",
+    "Medium-good-01.m4a",
+    "Short-bad-01.m4a",
+    "Short-bad-02.m4a"
+  ],
+  "runs": [
+    {
+      "file": "Long-good-01.m4a",
+      "run": 1,
+      "audioDurationSeconds": 51,
+      "audioUploadMs": 669,
+      "transcribeSubmitMs": 261,
+      "transcribeWaitMs": 4586,
+      "scoringCallMs": 4951,
+      "bossDialogueCallMs": 1670,
+      "totalMs": 12137,
+      "scoringTokens": {
+        "inputTokens": 1819,
+        "outputTokens": 451
+      },
+      "bossDialogueTokens": {
+        "inputTokens": 1102,
+        "outputTokens": 119
+      }
+    },
+    {
+      "file": "Long-good-01.m4a",
+      "run": 2,
+      "audioDurationSeconds": 51,
+      "audioUploadMs": 1018,
+      "transcribeSubmitMs": 491,
+      "transcribeWaitMs": 4631,
+      "scoringCallMs": 4804,
+      "bossDialogueCallMs": 1829,
+      "totalMs": 12773,
+      "scoringTokens": {
+        "inputTokens": 1819,
+        "outputTokens": 464
+      },
+      "bossDialogueTokens": {
+        "inputTokens": 1101,
+        "outputTokens": 115
+      }
+    },
+    {
+      "file": "Long-good-01.m4a",
+      "run": 3,
+      "audioDurationSeconds": 51,
+      "audioUploadMs": 591,
+      "transcribeSubmitMs": 284,
+      "transcribeWaitMs": 4390,
+      "scoringCallMs": 4632,
+      "bossDialogueCallMs": 1695,
+      "totalMs": 11592,
+      "scoringTokens": {
+        "inputTokens": 1819,
+        "outputTokens": 500
+      },
+      "bossDialogueTokens": {
+        "inputTokens": 1102,
+        "outputTokens": 109
+      }
+    },
+    {
+      "file": "Medium-bad-01.m4a",
+      "run": 1,
+      "audioDurationSeconds": 40,
+      "audioUploadMs": 1052,
+      "transcribeSubmitMs": 476,
+      "transcribeWaitMs": 6414,
+      "scoringCallMs": 5330,
+      "bossDialogueCallMs": 1400,
+      "totalMs": 14672,
+      "scoringTokens": {
+        "inputTokens": 1766,
+        "outputTokens": 503
+      },
+      "bossDialogueTokens": {
+        "inputTokens": 1026,
+        "outputTokens": 88
+      }
+    },
+    {
+      "file": "Medium-bad-01.m4a",
+      "run": 2,
+      "audioDurationSeconds": 40,
+      "audioUploadMs": 969,
+      "transcribeSubmitMs": 455,
+      "transcribeWaitMs": 4485,
+      "scoringCallMs": 4368,
+      "bossDialogueCallMs": 1509,
+      "totalMs": 11786,
+      "scoringTokens": {
+        "inputTokens": 1766,
+        "outputTokens": 471
+      },
+      "bossDialogueTokens": {
+        "inputTokens": 1026,
+        "outputTokens": 92
+      }
+    },
+    {
+      "file": "Medium-bad-01.m4a",
+      "run": 3,
+      "audioDurationSeconds": 40,
+      "audioUploadMs": 586,
+      "transcribeSubmitMs": 285,
+      "transcribeWaitMs": 6690,
+      "scoringCallMs": 4680,
+      "bossDialogueCallMs": 1337,
+      "totalMs": 13578,
+      "scoringTokens": {
+        "inputTokens": 1766,
+        "outputTokens": 456
+      },
+      "bossDialogueTokens": {
+        "inputTokens": 1026,
+        "outputTokens": 83
+      }
+    },
+    {
+      "file": "Medium-good-01.m4a",
+      "run": 1,
+      "audioDurationSeconds": 38,
+      "audioUploadMs": 592,
+      "transcribeSubmitMs": 282,
+      "transcribeWaitMs": 4408,
+      "scoringCallMs": 4181,
+      "bossDialogueCallMs": 1523,
+      "totalMs": 10986,
+      "scoringTokens": {
+        "inputTokens": 1772,
+        "outputTokens": 419
+      },
+      "bossDialogueTokens": {
+        "inputTokens": 1052,
+        "outputTokens": 108
+      }
+    },
+    {
+      "file": "Medium-good-01.m4a",
+      "run": 2,
+      "audioDurationSeconds": 38,
+      "audioUploadMs": 985,
+      "transcribeSubmitMs": 363,
+      "transcribeWaitMs": 6821,
+      "scoringCallMs": 4412,
+      "bossDialogueCallMs": 1851,
+      "totalMs": 14432,
+      "scoringTokens": {
+        "inputTokens": 1771,
+        "outputTokens": 445
+      },
+      "bossDialogueTokens": {
+        "inputTokens": 1051,
+        "outputTokens": 122
+      }
+    },
+    {
+      "file": "Medium-good-01.m4a",
+      "run": 3,
+      "audioDurationSeconds": 38,
+      "audioUploadMs": 604,
+      "transcribeSubmitMs": 279,
+      "transcribeWaitMs": 6851,
+      "scoringCallMs": 4695,
+      "bossDialogueCallMs": 1747,
+      "totalMs": 14176,
+      "scoringTokens": {
+        "inputTokens": 1772,
+        "outputTokens": 421
+      },
+      "bossDialogueTokens": {
+        "inputTokens": 1051,
+        "outputTokens": 103
+      }
+    },
+    {
+      "file": "Short-bad-01.m4a",
+      "run": 1,
+      "audioDurationSeconds": 24,
+      "audioUploadMs": 541,
+      "transcribeSubmitMs": 287,
+      "transcribeWaitMs": 4345,
+      "scoringCallMs": 4327,
+      "bossDialogueCallMs": 1503,
+      "totalMs": 11003,
+      "scoringTokens": {
+        "inputTokens": 1665,
+        "outputTokens": 404
+      },
+      "bossDialogueTokens": {
+        "inputTokens": 937,
+        "outputTokens": 105
+      }
+    },
+    {
+      "file": "Short-bad-01.m4a",
+      "run": 2,
+      "audioDurationSeconds": 24,
+      "audioUploadMs": 1024,
+      "transcribeSubmitMs": 527,
+      "transcribeWaitMs": 4543,
+      "scoringCallMs": 4606,
+      "bossDialogueCallMs": 1367,
+      "totalMs": 12067,
+      "scoringTokens": {
+        "inputTokens": 1665,
+        "outputTokens": 418
+      },
+      "bossDialogueTokens": {
+        "inputTokens": 937,
+        "outputTokens": 86
+      }
+    },
+    {
+      "file": "Short-bad-01.m4a",
+      "run": 3,
+      "audioDurationSeconds": 24,
+      "audioUploadMs": 537,
+      "transcribeSubmitMs": 299,
+      "transcribeWaitMs": 4335,
+      "scoringCallMs": 4678,
+      "bossDialogueCallMs": 1499,
+      "totalMs": 11348,
+      "scoringTokens": {
+        "inputTokens": 1665,
+        "outputTokens": 441
+      },
+      "bossDialogueTokens": {
+        "inputTokens": 937,
+        "outputTokens": 83
+      }
+    },
+    {
+      "file": "Short-bad-02.m4a",
+      "run": 1,
+      "audioDurationSeconds": 20,
+      "audioUploadMs": 802,
+      "transcribeSubmitMs": 463,
+      "transcribeWaitMs": 4568,
+      "scoringCallMs": 4900,
+      "bossDialogueCallMs": 1463,
+      "totalMs": 12196,
+      "scoringTokens": {
+        "inputTokens": 1681,
+        "outputTokens": 447
+      },
+      "bossDialogueTokens": {
+        "inputTokens": 955,
+        "outputTokens": 94
+      }
+    },
+    {
+      "file": "Short-bad-02.m4a",
+      "run": 2,
+      "audioDurationSeconds": 20,
+      "audioUploadMs": 532,
+      "transcribeSubmitMs": 288,
+      "transcribeWaitMs": 4527,
+      "scoringCallMs": 4406,
+      "bossDialogueCallMs": 1712,
+      "totalMs": 11465,
+      "scoringTokens": {
+        "inputTokens": 1681,
+        "outputTokens": 444
+      },
+      "bossDialogueTokens": {
+        "inputTokens": 955,
+        "outputTokens": 103
+      }
+    },
+    {
+      "file": "Short-bad-02.m4a",
+      "run": 3,
+      "audioDurationSeconds": 20,
+      "audioUploadMs": 865,
+      "transcribeSubmitMs": 325,
+      "transcribeWaitMs": 4576,
+      "scoringCallMs": 3943,
+      "bossDialogueCallMs": 1367,
+      "totalMs": 11076,
+      "scoringTokens": {
+        "inputTokens": 1681,
+        "outputTokens": 388
+      },
+      "bossDialogueTokens": {
+        "inputTokens": 955,
+        "outputTokens": 91
+      }
+    }
+  ],
+  "summary": {
+    "audioUploadMs": {
+      "p50": 669,
+      "p95": 1052
+    },
+    "transcribeSubmitMs": {
+      "p50": 299,
+      "p95": 527
+    },
+    "transcribeWaitMs": {
+      "p50": 4568,
+      "p95": 6851
+    },
+    "scoringCallMs": {
+      "p50": 4632,
+      "p95": 5330
+    },
+    "bossDialogueCallMs": {
+      "p50": 1509,
+      "p95": 1851
+    },
+    "totalMs": {
+      "p50": 12067,
+      "p95": 14672
+    }
+  },
+  "pricing": {
+    "_disclaimer": "PLACEHOLDER VALUES. Verify every number below against the current AssemblyAI pricing page (https://www.assemblyai.com/pricing) and the current Anthropic pricing page (https://www.anthropic.com/pricing) before trusting any cost estimate this produces. Prices change over time and vary by model/tier.",
+    "assemblyai": {
+      "_note": "Price per hour of audio transcribed, for the speech model this app requests (universal-3-5-pro, falls back to universal-2). Verify both model prices separately on the pricing page.",
+      "universal_pro_per_hour_usd": 0.27,
+      "universal_2_per_hour_usd": 0.12
+    },
+    "anthropic": {
+      "_note": "Price per 1,000,000 tokens for claude-haiku-4-5-20251001, the model both scoring calls use.",
+      "haiku_input_per_million_usd": 1,
+      "haiku_output_per_million_usd": 5
+    }
+  },
+  "estimatedCostPerPitchUsd": 0.008074066666666668
+}

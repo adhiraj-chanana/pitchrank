@@ -1,0 +1,33 @@
+{
+  "generatedAt": "2026-10-02T19:27:33.709Z",
+  "runsPerTranscript": 10,
+  "fixedWpm": 140,
+  "moodModifierDisabled": true,
+  "files": [
+    {
+      "file": "medium-long-good.txt",
+      "scenarioId": "eecab70c-5a16-4cbf-96f3-d4d14fdaed17",
+      "runs": 10,
+      "scores": [
+        28,
+        38,
+        32,
+        32,
+        24,
+        32,
+        32,
+        42,
+        38,
+        34
+      ],
+      "mean": 33.2,
+      "stddev": 4.915282290977803,
+      "range": 18
+    }
+  ],
+  "overall": {
+    "meanOfMeans": 33.2,
+    "meanStddev": 4.915282290977803,
+    "meanRange": 18
+  }
+}
