@@ -40,6 +40,7 @@ type FileResult = {
   file: string;
   scenarioId: string;
   runs: number;
+  failedRuns: number;
   scores: number[];
   mean: number;
   stddev: number;
@@ -109,16 +110,34 @@ async function main() {
 
     console.log(`Scoring ${file} x${RUNS_PER_TRANSCRIPT}...`);
     const scores: number[] = [];
+    let failedRuns = 0;
+    // Each run is isolated: a real scoring failure (e.g. scorePitch's
+    // validation throwing after Claude returns an invalid response twice
+    // in a row) is recorded and skipped rather than aborting the whole
+    // transcript — and critically, rather than aborting every other
+    // transcript still queued behind this one.
     for (let run = 1; run <= RUNS_PER_TRANSCRIPT; run++) {
-      const score = await scorePitch({
-        scenario,
-        transcript,
-        fillerCount: fillerWords.count,
-        fillerWords: fillerWords.instances,
-        wpm: FIXED_WPM,
-        moodTone: FIXED_MOOD_TONE,
-      });
-      scores.push(score.overall);
+      try {
+        const score = await scorePitch({
+          scenario,
+          transcript,
+          fillerCount: fillerWords.count,
+          fillerWords: fillerWords.instances,
+          wpm: FIXED_WPM,
+          moodTone: FIXED_MOOD_TONE,
+        });
+        scores.push(score.overall);
+      } catch (err) {
+        failedRuns++;
+        console.error(
+          `  ${file} run ${run}/${RUNS_PER_TRANSCRIPT} failed: ${err instanceof Error ? err.message : err}`
+        );
+      }
+    }
+
+    if (scores.length === 0) {
+      console.error(`  ${file}: all ${RUNS_PER_TRANSCRIPT} runs failed, excluding from results`);
+      continue;
     }
 
     const m = mean(scores);
@@ -128,13 +147,17 @@ async function main() {
     fileResults.push({
       file,
       scenarioId,
-      runs: RUNS_PER_TRANSCRIPT,
+      runs: scores.length,
+      failedRuns,
       scores,
       mean: m,
       stddev: sd,
       range,
     });
-    console.log(`  scores=[${scores.join(", ")}] mean=${m.toFixed(2)} stddev=${sd.toFixed(2)} range=${range}`);
+    console.log(
+      `  scores=[${scores.join(", ")}] mean=${m.toFixed(2)} stddev=${sd.toFixed(2)} range=${range}` +
+        (failedRuns > 0 ? `  (${failedRuns} run(s) failed, excluded)` : "")
+    );
   }
 
   if (fileResults.length === 0) {
