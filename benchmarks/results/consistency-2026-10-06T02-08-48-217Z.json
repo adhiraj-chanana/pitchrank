@@ -1,0 +1,115 @@
+{
+  "generatedAt": "2026-10-06T02:08:48.203Z",
+  "runsPerTranscript": 10,
+  "fixedWpm": 140,
+  "moodModifierDisabled": true,
+  "files": [
+    {
+      "file": "long-good.txt",
+      "scenarioId": "f2abda73-3e2a-4c6d-a3bf-1345a2d4b2f0",
+      "runs": 10,
+      "failedRuns": 0,
+      "scores": [
+        60,
+        60,
+        59,
+        57,
+        59,
+        55,
+        61,
+        55,
+        59,
+        59
+      ],
+      "mean": 58.4,
+      "stddev": 1.9595917942265424,
+      "range": 6
+    },
+    {
+      "file": "medium-long-good.txt",
+      "scenarioId": "eecab70c-5a16-4cbf-96f3-d4d14fdaed17",
+      "runs": 10,
+      "failedRuns": 0,
+      "scores": [
+        42,
+        42,
+        40,
+        42,
+        43,
+        41,
+        40,
+        40,
+        42,
+        40
+      ],
+      "mean": 41.2,
+      "stddev": 1.0770329614269007,
+      "range": 3
+    },
+    {
+      "file": "medium-okay.txt",
+      "scenarioId": "7e9beff0-cf4a-4331-80a4-c288d4fcd145",
+      "runs": 10,
+      "failedRuns": 0,
+      "scores": [
+        61,
+        61,
+        59,
+        59,
+        59,
+        59,
+        59,
+        59,
+        59,
+        59
+      ],
+      "mean": 59.4,
+      "stddev": 0.8000000000000003,
+      "range": 2
+    },
+    {
+      "file": "short-bad-01.txt",
+      "scenarioId": "c6cf8c86-dd41-4f0b-b5b6-13edbe4d589b",
+      "runs": 8,
+      "failedRuns": 2,
+      "scores": [
+        26,
+        24,
+        26,
+        24,
+        24,
+        24,
+        26,
+        24
+      ],
+      "mean": 24.75,
+      "stddev": 0.9682458365518543,
+      "range": 2
+    },
+    {
+      "file": "short-bad-02.txt",
+      "scenarioId": "7e9beff0-cf4a-4331-80a4-c288d4fcd145",
+      "runs": 9,
+      "failedRuns": 1,
+      "scores": [
+        49,
+        54,
+        59,
+        51,
+        59,
+        53,
+        53,
+        53,
+        49
+      ],
+      "mean": 53.333333333333336,
+      "stddev": 3.464101615137755,
+      "range": 10
+    }
+  ],
+  "overall": {
+    "meanOfMeans": 47.41666666666667,
+    "meanStddev": 1.6537944414686105,
+    "meanRange": 4.6
+  }
+}
