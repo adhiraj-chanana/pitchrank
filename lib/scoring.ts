@@ -1,10 +1,27 @@
 import Anthropic from "@anthropic-ai/sdk";
-import type { PitchScore, Scenario } from "@/lib/types";
+import type { PitchDimensions, PitchScore, Scenario } from "@/lib/types";
 import type { BossState } from "@/lib/boss";
 import type { TokenUsage } from "@/lib/benchmark";
 
 const client = new Anthropic();
 
+// Weights for the overall score, computed in code from dimensions rather
+// than asked of the model — see scorePitch for why.
+const OVERALL_WEIGHTS = {
+  hook: 0.2,
+  clarity: 0.25,
+  confidence: 0.2,
+  close: 0.2,
+  filler_penalty: 0.075,
+  pace_score: 0.075,
+} as const;
+
+// Claude no longer reports `overall` itself — it was asked to do a
+// 6-term weighted-average calculation inline while generating six other
+// fields, and (confirmed via benchmarks/results, Oct 2026) sometimes just
+// didn't include it despite it being in `required` below at the time.
+// Computing it in code from the dimension scores is both more reliable
+// and removes an entire field Claude has to get right.
 const SCORE_PITCH_TOOL: Anthropic.Tool = {
   name: "score_pitch",
   description:
@@ -12,10 +29,6 @@ const SCORE_PITCH_TOOL: Anthropic.Tool = {
   input_schema: {
     type: "object",
     properties: {
-      overall: {
-        type: "number",
-        description: "Overall score, 0-100, the weighted average of the sub-scores.",
-      },
       dimensions: {
         type: "object",
         properties: {
@@ -50,17 +63,61 @@ const SCORE_PITCH_TOOL: Anthropic.Tool = {
         description: "1-2 specific things they did well. Never empty.",
       },
     },
-    required: [
-      "overall",
-      "dimensions",
-      "filler_penalty",
-      "pace_score",
-      "feedback",
-      "hedging_phrases",
-      "strong_moments",
-    ],
+    required: ["dimensions", "filler_penalty", "pace_score", "feedback", "hedging_phrases", "strong_moments"],
   },
 };
+
+type RawScorePitchInput = {
+  dimensions: PitchDimensions;
+  filler_penalty: number;
+  pace_score: number;
+  feedback: string[];
+  hedging_phrases: string[];
+  strong_moments: string[];
+};
+
+function isFiniteNumber(value: unknown): value is number {
+  return typeof value === "number" && Number.isFinite(value);
+}
+
+function isStringArray(value: unknown): value is string[] {
+  return Array.isArray(value) && value.every((v) => typeof v === "string");
+}
+
+// All dimension fields required, every numeric field validated as an
+// actual finite number (not just "present") — this is what replaces the
+// silent `overall = 0` fallback: an invalid response now fails loudly
+// instead of being coerced into a fake score.
+function isValidScorePitchInput(input: unknown): input is RawScorePitchInput {
+  if (!input || typeof input !== "object") return false;
+  const i = input as Record<string, unknown>;
+  const dims = i.dimensions as Record<string, unknown> | undefined;
+
+  if (!dims || typeof dims !== "object") return false;
+  if (!isFiniteNumber(dims.hook)) return false;
+  if (!isFiniteNumber(dims.clarity)) return false;
+  if (!isFiniteNumber(dims.confidence)) return false;
+  if (!isFiniteNumber(dims.close)) return false;
+  if (!isFiniteNumber(i.filler_penalty)) return false;
+  if (!isFiniteNumber(i.pace_score)) return false;
+  if (!isStringArray(i.feedback)) return false;
+  if (!isStringArray(i.hedging_phrases)) return false;
+  if (!isStringArray(i.strong_moments)) return false;
+
+  return true;
+}
+
+function computeOverall(input: RawScorePitchInput): number {
+  const weighted =
+    input.dimensions.hook * OVERALL_WEIGHTS.hook +
+    input.dimensions.clarity * OVERALL_WEIGHTS.clarity +
+    input.dimensions.confidence * OVERALL_WEIGHTS.confidence +
+    input.dimensions.close * OVERALL_WEIGHTS.close +
+    input.filler_penalty * OVERALL_WEIGHTS.filler_penalty +
+    input.pace_score * OVERALL_WEIGHTS.pace_score;
+
+  return Math.round(weighted * 10);
+}
 
 function buildPrompt(params: {
   scenario: Pick<Scenario, "title" | "context" | "prompt">;
@@ -96,7 +153,6 @@ SCORING RULES:
 - Close (0-10): Did they end with a specific ask or clear next step? Trailing off or vague endings = 4 or below
 - Filler penalty: 0 fillers = 10, 1-2 = 8, 3-5 = 6, 6-10 = 4, 10+ = 2
 - Pace: Under 100 wpm = 5, 100-130 = 7, 130-150 = 10, 150-180 = 7, 180+ = 4
-- Overall: weighted average — hook 20%, clarity 25%, confidence 20%, close 20%, filler_penalty 7.5%, pace_score 7.5%
 - feedback: 3 specific bullets referencing ACTUAL things they said. Never generic advice. Quote their words when criticizing.
 - strong_moments: Always find at least 1 thing they did well, even in a bad pitch. Be specific.
 - hedging_phrases: List the actual phrases from their transcript that showed low confidence. Empty array if none.`;
@@ -113,41 +169,71 @@ export async function scorePitch(
   },
   // Benchmark-only side channel for token usage — never affects the
   // request, the prompt, or the returned score shape. Omitted in normal
-  // production calls.
+  // production calls. Reflects combined usage across both attempts if a
+  // retry happens, since that's the real cost incurred.
   onUsage?: (usage: TokenUsage) => void
 ): Promise<Omit<PitchScore, "boss_dialogue" | "mood">> {
-  const message = await client.messages.create({
-    model: "claude-haiku-4-5-20251001",
-    max_tokens: 2048,
-    tools: [SCORE_PITCH_TOOL],
-    tool_choice: { type: "tool", name: "score_pitch" },
-    messages: [{ role: "user", content: buildPrompt(params) }],
-  });
+  let usageTotal: TokenUsage = { inputTokens: 0, outputTokens: 0 };
 
-  onUsage?.({
-    inputTokens: message.usage.input_tokens,
-    outputTokens: message.usage.output_tokens,
-  });
+  async function attempt(): Promise<unknown> {
+    const message = await client.messages.create({
+      model: "claude-haiku-4-5-20251001",
+      max_tokens: 4096,
+      tools: [SCORE_PITCH_TOOL],
+      tool_choice: { type: "tool", name: "score_pitch" },
+      messages: [{ role: "user", content: buildPrompt(params) }],
+    });
 
-  const toolUse = message.content.find(
-    (block): block is Anthropic.ToolUseBlock => block.type === "tool_use"
-  );
+    usageTotal = {
+      inputTokens: usageTotal.inputTokens + message.usage.input_tokens,
+      outputTokens: usageTotal.outputTokens + message.usage.output_tokens,
+    };
 
-  if (!toolUse) {
-    throw new Error("Claude did not return a score_pitch tool call.");
+    const toolUse = message.content.find(
+      (block): block is Anthropic.ToolUseBlock => block.type === "tool_use"
+    );
+
+    if (!toolUse) {
+      console.error(
+        `[scorePitch] no tool_use block in response. stop_reason=${message.stop_reason}`
+      );
+      return undefined;
+    }
+
+    if (message.stop_reason === "max_tokens") {
+      console.error(
+        `[scorePitch] response hit max_tokens — likely truncated. raw=${JSON.stringify(toolUse.input)}`
+      );
+    }
+
+    return toolUse.input;
   }
 
-  const input = toolUse.input as Omit<
-    PitchScore,
-    "filler_words" | "wpm" | "boss_dialogue" | "mood"
-  >;
+  let raw = await attempt();
 
-  if (!input.overall && input.overall !== 0) {
-    input.overall = 0;
+  if (!isValidScorePitchInput(raw)) {
+    console.error(`[scorePitch] invalid tool input, retrying once. raw=${JSON.stringify(raw)}`);
+    raw = await attempt();
+
+    if (!isValidScorePitchInput(raw)) {
+      console.error(`[scorePitch] invalid tool input after retry. raw=${JSON.stringify(raw)}`);
+      onUsage?.(usageTotal);
+      throw new Error(
+        "Claude returned an invalid score_pitch response twice in a row — see server logs for the raw input."
+      );
+    }
   }
+
+  onUsage?.(usageTotal);
 
   return {
-    ...input,
+    overall: computeOverall(raw),
+    dimensions: raw.dimensions,
+    filler_penalty: raw.filler_penalty,
+    pace_score: raw.pace_score,
+    feedback: raw.feedback,
+    hedging_phrases: raw.hedging_phrases,
+    strong_moments: raw.strong_moments,
     filler_words: params.fillerCount,
     wpm: params.wpm,
   };
