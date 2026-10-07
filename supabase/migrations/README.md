@@ -28,3 +28,20 @@ Ask Claude to re-derive the full design rationale if needed — including why
 this two-step sequencing is a real constraint, not overcaution: the app has
 no deploy/DB migration coordination, Vercel deploys aren't atomic, and
 there's a rollout window where old and new code run concurrently.
+
+## 003 — fix the submit-pitch double-submission race
+
+Adds `pitch_attempt_claims` (claim a day's slot before paying for
+AssemblyAI/Claude), two service-role-only RPCs (`claim_pitch_attempt_slot`,
+`complete_pitch_attempt`), and a unique index on
+`pitch_attempts(user_id, date)` — the real rule (global per user per day,
+not per category).
+
+Single step, no deploy-ordering concern like 001/002: nothing existing reads
+`pitch_attempt_claims` or calls either function, so this is safe to run
+any time relative to the app deploy. Before running it, confirm zero
+duplicate `(user_id, date)` rows with `npx tsx scripts/find-duplicate-attempts.ts`
+— the unique index creation fails if any exist. Ask Claude to re-derive the
+full design (why a separate claims table instead of a status column on
+pitch_attempts, the stale-claim takeover logic, the service-role lockdown)
+if needed.
