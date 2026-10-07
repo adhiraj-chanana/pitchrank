@@ -58,6 +58,10 @@ async function claim(
     p_transcript_id: transcriptId,
   });
   if (error) throw error;
+  // PostgREST serializes a SQL NULL composite as an all-null-fields object,
+  // not JSON null — normalize it here so callers can do a plain null check,
+  // same fix as app/api/submit-pitch/route.ts's claimBlocked.
+  if (data && data.user_id === null) return null;
   return data;
 }
 

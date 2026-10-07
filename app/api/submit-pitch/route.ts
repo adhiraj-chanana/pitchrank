@@ -78,7 +78,12 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: claimError.message }, { status: 500 });
   }
 
-  if (!claim) {
+  // PostgREST serializes a plpgsql function's SQL NULL return (composite
+  // type) as an object with every field null, not JSON null — `!claim`
+  // alone is always false here, so it must be checked explicitly.
+  const claimBlocked = !claim || claim.user_id === null;
+
+  if (claimBlocked) {
     // An active (non-stale) claim already exists for today. Figure out
     // whether this is the same submission retrying (network failure after
     // the original request actually succeeded) or a genuine second pitch.
