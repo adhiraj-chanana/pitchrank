@@ -52,6 +52,20 @@ create table if not exists user_streaks (
   last_completed_date date
 );
 
+-- The day's slot, claimed before paying for AssemblyAI/Claude — see
+-- migrations/003_fix_submit_pitch_race.sql for the full design rationale
+-- (stale-claim takeover, why this is a separate table rather than a
+-- status column on pitch_attempts). Kept as a permanent per-day lock
+-- after a successful submission; deleted by the app only on scoring
+-- failure, to let the user retry.
+create table if not exists pitch_attempt_claims (
+  user_id uuid not null references auth.users(id),
+  date date not null,
+  transcript_id text not null,
+  claimed_at timestamptz not null default now(),
+  primary key (user_id, date)
+);
+
 -- Helpful indexes
 create index if not exists idx_pitch_attempts_user_id on pitch_attempts(user_id);
 create index if not exists idx_pitch_attempts_user_date on pitch_attempts(user_id, date);
@@ -61,6 +75,12 @@ create index if not exists idx_scenarios_category_tier on scenarios(category_id,
 -- One scenario per (date, category) — see daily_scenarios comment above.
 create unique index if not exists daily_scenarios_date_category_key
   on daily_scenarios(date, category_id);
+
+-- The real daily-limit rule: global per user per day, not per category
+-- (pitch_attempts has no category_id at all) — the hard DB-level backstop
+-- behind the claim-based race fix below.
+create unique index if not exists pitch_attempts_user_date_key
+  on pitch_attempts(user_id, date);
 
 -- ============================================================
 -- ROW LEVEL SECURITY
@@ -112,6 +132,86 @@ create policy "users can insert own streak"
 create policy "users can update own streak"
   on user_streaks for update
   using (auth.uid() = user_id);
+
+-- pitch_attempt_claims: deliberately no policies. Combined with the
+-- revoke below, this table has zero access for anon/authenticated —
+-- only service_role (bypasses RLS), called server-side only.
+alter table pitch_attempt_claims enable row level security;
+revoke all on table pitch_attempt_claims from public, anon, authenticated;
+
+-- ============================================================
+-- FUNCTIONS — service-role-only RPCs for the submit-pitch race fix.
+-- See migrations/003_fix_submit_pitch_race.sql for the full rationale.
+-- ============================================================
+
+-- Atomic claim-or-take-over-if-stale: a plain insert would just fail on
+-- conflict; ON CONFLICT ... WHERE lets a request atomically take over a
+-- claim whose owner crashed or lost its connection mid-scoring (claimed_at
+-- older than 3 minutes) without a race between "check if stale" and
+-- "take it." Returns null when an active (non-stale) claim blocks it.
+create or replace function claim_pitch_attempt_slot(
+  p_user_id uuid,
+  p_date date,
+  p_transcript_id text
+) returns pitch_attempt_claims
+language plpgsql
+as $$
+declare
+  v_claim pitch_attempt_claims;
+begin
+  insert into pitch_attempt_claims (user_id, date, transcript_id, claimed_at)
+  values (p_user_id, p_date, p_transcript_id, now())
+  on conflict (user_id, date) do update
+    set transcript_id = excluded.transcript_id,
+        claimed_at = excluded.claimed_at
+    where pitch_attempt_claims.claimed_at < now() - interval '3 minutes'
+  returning * into v_claim;
+
+  if not found then
+    return null;
+  end if;
+
+  return v_claim;
+end;
+$$;
+
+revoke all on function claim_pitch_attempt_slot(uuid, date, text) from public, anon, authenticated;
+grant execute on function claim_pitch_attempt_slot(uuid, date, text) to service_role;
+
+-- Atomic finalize: the attempt insert and the streak upsert succeed or
+-- fail together. Does not touch pitch_attempt_claims — the claim row is
+-- kept as the day's lock on success, only deleted by the app on failure.
+create or replace function complete_pitch_attempt(
+  p_user_id uuid,
+  p_scenario_id uuid,
+  p_date date,
+  p_transcript text,
+  p_score jsonb,
+  p_new_streak int,
+  p_longest_streak int
+) returns pitch_attempts
+language plpgsql
+as $$
+declare
+  v_attempt pitch_attempts;
+begin
+  insert into pitch_attempts (user_id, scenario_id, date, transcript, score, audio_url)
+  values (p_user_id, p_scenario_id, p_date, p_transcript, p_score, null)
+  returning * into v_attempt;
+
+  insert into user_streaks (user_id, current_streak, longest_streak, last_completed_date)
+  values (p_user_id, p_new_streak, p_longest_streak, p_date)
+  on conflict (user_id) do update
+    set current_streak = excluded.current_streak,
+        longest_streak = excluded.longest_streak,
+        last_completed_date = excluded.last_completed_date;
+
+  return v_attempt;
+end;
+$$;
+
+revoke all on function complete_pitch_attempt(uuid, uuid, date, text, jsonb, int, int) from public, anon, authenticated;
+grant execute on function complete_pitch_attempt(uuid, uuid, date, text, jsonb, int, int) to service_role;
 
 -- ============================================================
 -- SEED DATA — 1 category, 10 scenarios across 4 tiers
